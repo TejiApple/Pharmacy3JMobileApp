@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context=".ui.RegistrationActivity">
+
+    <EditText
+        android:id="@+id/etCompleteName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="Complete Name"
+        android:inputType="text"
+        android:gravity="center"
+        android:background="@drawable/rectangle_rounded_edittext"/>
+
+    <EditText
+        android:id="@+id/etMobilePhone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="Mobile Phone"
+        android:inputType="text"
+        android:gravity="center"
+        android:background="@drawable/rectangle_rounded_edittext"/>
+
+    <EditText
+        android:id="@+id/etBirthdate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="Birthdate (MM/DD/YYYY)"
+        android:inputType="text"
+        android:gravity="center"
+        android:background="@drawable/rectangle_rounded_edittext"/>
+
+    <EditText
+        android:id="@+id/etSeniorCitizenId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="City/Municipality"
+        android:inputType="text"
+        android:gravity="center"
+        android:background="@drawable/rectangle_rounded_edittext"/>
+
+    <EditText
+        android:id="@+id/etBarangay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="Barangay"
+        android:inputType="text"
+        android:gravity="center"
+        android:background="@drawable/rectangle_rounded_edittext"/>
+
+    <EditText
+        android:id="@+id/etHouseNo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="House No., St. and/or Purok"
+        android:inputType="text"
+        android:gravity="center"
+        android:background="@drawable/rectangle_rounded_edittext"/>
+
+    <EditText
+        android:id="@+id/etUsernameReg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="Username"
+        android:inputType="text"
+        android:gravity="center"
+        android:background="@drawable/rectangle_rounded_brown"/>
+
+    <EditText
+        android:id="@+id/etPasswordReg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="Password"
+        android:inputType="text"
+        android:gravity="center"
+        android:background="@drawable/rectangle_rounded_brown"/>
+
+    <EditText
+        android:id="@+id/etConfirmPasswordReg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="Confirm Password"
+        android:inputType="text"
+        android:gravity="center"
+        android:background="@drawable/rectangle_rounded_brown"/>
+
+    <Button
+        android:id="@+id/btnLogin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:padding="8dp"
+        android:backgroundTint="#13548A"
+        android:text="Register"/>
+
+    <Button
+        android:id="@+id/btnRegister"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:backgroundTint="#566C7D"
+        android:text="Cancel"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="By clicking the register button, you have agreed and read our terms and conditions."
+        android:textAlignment="center"/>
+</LinearLayout>
