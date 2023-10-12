@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -13,6 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        app:layout_constraintTop_toTopOf="parent"
         android:hint="Complete Name"
         android:inputType="text"
         android:gravity="center"
@@ -23,6 +24,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/etCompleteName"
         android:hint="Mobile Phone"
         android:inputType="text"
         android:gravity="center"
@@ -33,6 +35,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/etMobilePhone"
         android:hint="Birthdate (MM/DD/YYYY)"
         android:inputType="text"
         android:gravity="center"
@@ -43,6 +46,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/etBirthdate"
         android:hint="City/Municipality"
         android:inputType="text"
         android:gravity="center"
@@ -53,6 +57,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/etSeniorCitizenId"
         android:hint="Barangay"
         android:inputType="text"
         android:gravity="center"
@@ -63,6 +68,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/etBarangay"
         android:hint="House No., St. and/or Purok"
         android:inputType="text"
         android:gravity="center"
@@ -73,6 +79,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/etHouseNo"
         android:hint="Username"
         android:inputType="text"
         android:gravity="center"
@@ -83,6 +90,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/etUsernameReg"
         android:hint="Password"
         android:inputType="text"
         android:gravity="center"
@@ -93,24 +101,27 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/etPasswordReg"
         android:hint="Confirm Password"
         android:inputType="text"
         android:gravity="center"
         android:background="@drawable/rectangle_rounded_brown"/>
 
     <Button
-        android:id="@+id/btnLogin"
+        android:id="@+id/btnRegister"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/etConfirmPasswordReg"
         android:padding="8dp"
         android:backgroundTint="#13548A"
         android:text="Register"/>
 
     <Button
-        android:id="@+id/btnRegister"
+        android:id="@+id/btnCancel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/btnRegister"
         android:padding="8dp"
         android:backgroundTint="#566C7D"
         android:text="Cancel"/>
@@ -118,6 +129,19 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/btnCancel"
         android:text="By clicking the register button, you have agreed and read our terms and conditions."
         android:textAlignment="center"/>
-</LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:visibility="invisible"
+        android:layout_gravity="center"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
