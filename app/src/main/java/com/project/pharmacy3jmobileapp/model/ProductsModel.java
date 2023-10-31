@@ -5,6 +5,7 @@ public class ProductsModel {
     String genericName;
     int price;
     String imageUrl;
+    String description;
 
     public String getGenericName() {
         return genericName;
@@ -36,5 +37,13 @@ public class ProductsModel {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

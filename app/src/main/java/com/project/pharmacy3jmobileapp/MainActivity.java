@@ -69,7 +69,9 @@ public class MainActivity extends AppCompatActivity {
                         if (task.isSuccessful()){
                             Toast.makeText(MainActivity.this, "Logged in successfully!", Toast.LENGTH_SHORT).show();
 //                            progressBar.setVisibility(View.GONE);
-                            startActivity(new Intent(getApplicationContext(), HomepageActivity.class));
+                            Intent intent = new Intent(getApplicationContext(), HomepageActivity.class);
+                            intent.putExtra("username", username);
+                            startActivity(intent);
                             finish();
                         } else {
                             Toast.makeText(MainActivity.this, "Error : " + Objects.requireNonNull(task.getException()).getMessage(), Toast.LENGTH_SHORT).show();

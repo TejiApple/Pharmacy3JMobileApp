@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ImageView
+        android:id="@+id/ivProduct"
+        android:layout_width="100dp"
+        android:layout_height="150dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/tvProductNameInTheCart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@+id/ivProduct"
+        app:layout_constraintTop_toTopOf="parent"
+        android:text="Sample Text"
+        android:textSize="30sp"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/tvProductPriceInTheCart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@+id/ivProduct"
+        app:layout_constraintTop_toBottomOf="@id/tvProductNameInTheCart"
+        android:text="Sample Text"
+        android:textSize="16sp"/>
+
+    <LinearLayout
+        android:id="@+id/llProductQuantity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@+id/ivProduct"
+        app:layout_constraintTop_toBottomOf="@id/tvProductPriceInTheCart"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/btnDecreaseProductQuantity"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/ic_subtract"
+            android:backgroundTint="#13548A"
+            app:layout_constraintStart_toEndOf="@+id/ivProduct"
+            app:layout_constraintTop_toBottomOf="@id/tvProductPriceInTheCart"/>
+
+        <TextView
+            android:id="@+id/tvProductQuantity"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:text="1"
+            android:textSize="24sp"
+            android:gravity="center"/>
+
+        <ImageButton
+            android:id="@+id/btnIncreaseProductQuantity"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/ic_add"
+            android:backgroundTint="#13548A"
+            app:layout_constraintStart_toEndOf="@+id/ivProduct"
+            app:layout_constraintTop_toBottomOf="@id/tvProductPriceInTheCart"/>
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnRemoveProduct"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <TextView
+        android:id="@+id/tvTotal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnRemoveProduct"
+        android:text="Total"/>
+
+    <TextView
+        android:id="@+id/tvTotalAmount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvTotal"
+        android:text="Php 0.00"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
