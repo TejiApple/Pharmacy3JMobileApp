@@ -60,6 +60,7 @@
                 android:text="Total"/>
 
             <TextView
+                android:id="@+id/tvCartTotalAmount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toTopOf="parent"
@@ -81,6 +82,7 @@
                 android:textStyle="bold"/>
 
             <TextView
+                android:id="@+id/tvCustAddress"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="123 Sample Address"/>
@@ -88,14 +90,29 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
                 android:text="Always check your address and contact information to avoid loses delivery delay."
                 android:textStyle="italic"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
                 android:text="Mode of Payment"
                 android:textStyle="bold"/>
+
+            <RadioButton
+                android:id="@+id/rdBtnGcash"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="G-Cash" />
+
+            <RadioButton
+                android:id="@+id/rdBtnCashOnDelivery"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Cash on Delivery" />
+
         </LinearLayout>
     </LinearLayout>
 
@@ -104,11 +121,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toTopOf="@id/btnCancelCheckout"
-        android:text="Checkout"/>
+        android:text="Checkout"
+        android:backgroundTint="#13548A"
+        android:textColor="@color/white"/>
     <Button
         android:id="@+id/btnCancelCheckout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Cancel"
+        android:backgroundTint="#566C7D"
+        android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

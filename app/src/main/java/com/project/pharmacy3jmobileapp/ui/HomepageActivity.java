@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -94,6 +95,7 @@ public class HomepageActivity extends AppCompatActivity {
                             }
 
                             intent.putExtra("productModel", objectFromArray);
+                            intent.putExtra("category", "Health Care");
                             startActivity(intent);
                         }
                     });
@@ -131,6 +133,7 @@ public class HomepageActivity extends AppCompatActivity {
                         intent.putExtra("brandName",productsModelArrayList.get(position).getBrandName());
                         intent.putExtra("description", productsModelArrayList.get(position).getDescription());
                         intent.putExtra("price", productsModelArrayList.get(position).getPrice());
+                        intent.putExtra("category", "Personal Care");
                         startActivity(intent);
                     }
                 });
@@ -164,6 +167,7 @@ public class HomepageActivity extends AppCompatActivity {
                         intent.putExtra("brandName",productsModelArrayList.get(position).getBrandName());
                         intent.putExtra("description", productsModelArrayList.get(position).getDescription());
                         intent.putExtra("price", productsModelArrayList.get(position).getPrice());
+                        intent.putExtra("category", "Beauty Care");
                         startActivity(intent);
                     }
                 });
@@ -197,6 +201,7 @@ public class HomepageActivity extends AppCompatActivity {
                         intent.putExtra("brandName",productsModelArrayList.get(position).getBrandName());
                         intent.putExtra("description", productsModelArrayList.get(position).getDescription());
                         intent.putExtra("price", productsModelArrayList.get(position).getPrice());
+                        intent.putExtra("category", "Baby & Kids");
                         startActivity(intent);
                     }
                 });

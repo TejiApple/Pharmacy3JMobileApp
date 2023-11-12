@@ -24,7 +24,7 @@
                 android:layout_gravity="center"
                 android:layout_marginTop="32dp"
                 android:text="Welcome!"
-                />
+                android:textSize="20sp"/>
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -39,14 +39,18 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="16dp"
-                android:text="3J's Pharmacy"/>
+                android:text="3J's Pharmacy"
+                android:textSize="36sp"
+                android:textStyle="bold"
+                android:fontFamily="serif"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginTop="8dp"
-                android:text="Customer's Login"/>
+                android:text="Customer's Login"
+                android:textSize="20sp"/>
 
         </LinearLayout>
 

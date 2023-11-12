@@ -1,6 +1,7 @@
 package com.project.pharmacy3jmobileapp;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -69,6 +70,11 @@ public class MainActivity extends AppCompatActivity {
                         if (task.isSuccessful()){
                             Toast.makeText(MainActivity.this, "Logged in successfully!", Toast.LENGTH_SHORT).show();
 //                            progressBar.setVisibility(View.GONE);
+                            SharedPreferences sharedPref = getSharedPreferences("sp", MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sharedPref.edit();
+                            editor.putString("username", username);
+                            editor.apply();
+
                             Intent intent = new Intent(getApplicationContext(), HomepageActivity.class);
                             intent.putExtra("username", username);
                             startActivity(intent);

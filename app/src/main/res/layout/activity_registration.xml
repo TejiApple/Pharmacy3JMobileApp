@@ -115,6 +115,7 @@
         app:layout_constraintTop_toBottomOf="@id/etConfirmPasswordReg"
         android:padding="8dp"
         android:backgroundTint="#13548A"
+        android:textColor="@color/white"
         android:text="Register"/>
 
     <Button
@@ -124,7 +125,8 @@
         app:layout_constraintTop_toBottomOf="@id/btnRegister"
         android:padding="8dp"
         android:backgroundTint="#566C7D"
-        android:text="Cancel"/>
+        android:text="Cancel"
+        android:textColor="@color/white"/>
 
     <TextView
         android:layout_width="match_parent"

@@ -11,8 +11,10 @@ import android.widget.TextView;
 
 import com.project.pharmacy3jmobileapp.R;
 import com.project.pharmacy3jmobileapp.model.ProductsModel;
+import com.project.pharmacy3jmobileapp.model.OrderDetails;
 import com.squareup.picasso.Picasso;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -20,9 +22,13 @@ public class CartProductDetailsListAdapter extends BaseAdapter {
     Context context;
     private ArrayList<ProductsModel> productsModel;
 
-    public CartProductDetailsListAdapter(Context context, ArrayList<ProductsModel> productsModel) {
+    private OrderDetails orderDetails;
+    double total;
+
+    public CartProductDetailsListAdapter(Context context, ArrayList<ProductsModel> productsModel, OrderDetails orderDetails) {
         this.context = context;
         this.productsModel = productsModel;
+        this.orderDetails = orderDetails;
     }
 
     @Override
@@ -48,14 +54,20 @@ public class CartProductDetailsListAdapter extends BaseAdapter {
                 convertView = inflater.inflate(R.layout.listview_cart, null, true);
             }
             ImageView imageView = convertView.findViewById(R.id.ivProduct);
-            TextView tvBrandName, tvPrice, tvQuantity;
+            TextView tvBrandName, tvPrice, tvQuantity, tvTotalAmount;
             tvBrandName = convertView.findViewById(R.id.tvProductNameInTheCart);
             tvPrice = convertView.findViewById(R.id.tvProductPriceInTheCart);
             tvQuantity = convertView.findViewById(R.id.tvProductQuantity);
+            tvTotalAmount = convertView.findViewById(R.id.tvTotalAmount);
+
+            DecimalFormat df = new DecimalFormat("#,###.00");
 
             String price = String.valueOf(productsModel.get(position).getPrice());
             tvBrandName.setText(productsModel.get(position).getBrandName());
-            tvPrice.setText(price);
+            String formattedPrice = "Php " + df.format(Integer.parseInt(price));
+            tvPrice.setText(formattedPrice);
+            tvTotalAmount.setText(formattedPrice);
+//            totalAmount.cartTotalAmount(formattedPrice);
 //            imageView.setImageResource(R.drawable.icon_beauty_care);
             Picasso.get().load(productsModel.get(position).getImageUrl()).into(imageView);
 
@@ -68,14 +80,26 @@ public class CartProductDetailsListAdapter extends BaseAdapter {
             btnAdd.setOnClickListener(v -> {
                 quantity.getAndIncrement();
                 tvQuantity.setText(quantity.toString());
+
+                total = Double.parseDouble(price) * Double.parseDouble(String.valueOf(quantity));
+                String totalAmt = df.format(total);
+                tvTotalAmount.setText("Php " + totalAmt);
+                orderDetails.cartTotalAmount(totalAmt, quantity.get());
+
             });
 
             btnSubtract.setOnClickListener(v -> {
                 quantity.getAndDecrement();
                 if (quantity.get() < 1){
-                    tvQuantity.setText("0");
+                    quantity.set(1);
+                    tvQuantity.setText("1");
                 } else {
                     tvQuantity.setText(quantity.toString());
+
+                    String totalAmt = df.format(total - Double.parseDouble(price));
+                    total = Double.parseDouble(totalAmt);
+                    tvTotalAmount.setText("Php " + totalAmt);
+                    orderDetails.cartTotalAmount(totalAmt, quantity.get());
                 }
             });
         } catch (Exception e){
