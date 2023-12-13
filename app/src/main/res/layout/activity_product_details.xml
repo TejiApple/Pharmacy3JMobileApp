@@ -46,16 +46,6 @@
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
-            <Button
-                android:id="@+id/btnAddToCart"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/tvProductPrice"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:text="Add to Cart"
-                android:backgroundTint="#13548A"
-                android:textColor="@color/white"/>
-
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <LinearLayout
@@ -109,6 +99,33 @@
                 android:layout_marginTop="24dp"
                 android:text="Sample Text"
                 android:textSize="16sp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:weightSum="2">
+            <Button
+                android:id="@+id/btnBuyNow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:backgroundTint="#13548A"
+                android:textColor="@color/white"
+                android:text="Buy now"
+                android:layout_weight="1"/>
+
+            <Button
+                android:id="@+id/btnAddToCart"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Add to Cart"
+                android:backgroundTint="#0581e8"
+                android:textColor="@color/white"
+                android:layout_weight="1"/>
 
         </LinearLayout>
     </LinearLayout>

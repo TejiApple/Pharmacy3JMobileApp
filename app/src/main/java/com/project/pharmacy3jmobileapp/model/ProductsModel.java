@@ -6,6 +6,9 @@ public class ProductsModel {
     int price;
     String imageUrl;
     String description;
+    int position;
+    int quantity;
+    String totalAmount;
 
     public String getGenericName() {
         return genericName;
@@ -45,5 +48,29 @@ public class ProductsModel {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public String getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(String totalAmount) {
+        this.totalAmount = totalAmount;
     }
 }

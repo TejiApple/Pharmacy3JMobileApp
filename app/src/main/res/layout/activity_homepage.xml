@@ -28,13 +28,25 @@
                 app:layout_constraintStart_toStartOf="parent"/>
 
             <ImageButton
-                android:id="@+id/ibBasket"
+                android:id="@+id/ibCart"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="16dp"
-                android:background="@drawable/icon_basket"
+                android:background="@drawable/icon_cart"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/ibSettings" />
+
+            <TextView
+                android:id="@+id/tvProductsOnCart"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:background="@drawable/circle_red"
+                android:gravity="center|top"
+                android:text="0"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="@id/ibCart"
+                app:layout_constraintTop_toTopOf="@id/ibCart" />
 
             <ImageButton
                 android:id="@+id/ibSettings"
@@ -171,10 +183,13 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <EditText
+            android:id="@+id/etSearchProducts"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:hint="Search Products"
+            android:imeOptions="actionSearch"
+            android:inputType="text"
             android:gravity="center"
             android:background="@drawable/rectangle_rounded_edittext"/>
     </LinearLayout>

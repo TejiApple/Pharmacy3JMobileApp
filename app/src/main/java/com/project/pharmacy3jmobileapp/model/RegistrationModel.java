@@ -4,7 +4,7 @@ public class RegistrationModel {
     public RegistrationModel() {
     }
 
-    public RegistrationModel(String completeName, String mobilePhone, String birthdate, String seniorCitizenId,
+    public RegistrationModel(String completeName, String mobilePhone, String birthdate, String seniorCitizenId, String cityMunicipality,
                              String barangay, String houseNo, String usernameReg, String passwordReg) {
         this.completeName = completeName;
         this.mobilePhone = mobilePhone;
@@ -20,6 +20,7 @@ public class RegistrationModel {
     private String mobilePhone;
     private String birthdate;
     private String seniorCitizenId;
+    private String cityMunicipality;
     private String barangay;
     private String houseNo;
     private String usernameReg;
@@ -55,6 +56,14 @@ public class RegistrationModel {
 
     public void setSeniorCitizenId(String seniorCitizenId) {
         this.seniorCitizenId = seniorCitizenId;
+    }
+
+    public String getCityMunicipality() {
+        return cityMunicipality;
+    }
+
+    public void setCityMunicipality(String cityMunicipality) {
+        this.cityMunicipality = cityMunicipality;
     }
 
     public String getBarangay() {

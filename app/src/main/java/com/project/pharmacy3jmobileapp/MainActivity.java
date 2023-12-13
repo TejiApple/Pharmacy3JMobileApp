@@ -14,6 +14,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
@@ -27,7 +29,8 @@ public class MainActivity extends AppCompatActivity {
 
     DatabaseReference dbRef;
     FirebaseAuth firebaseAuth;
-    EditText etUsername, etPassword;
+    EditText etUsername;
+    TextInputEditText etPassword;
     Button btnLogin;
 
     @Override
@@ -51,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String username = etUsername.getText().toString();
-                String password = etPassword.getText().toString();
+                String password = Objects.requireNonNull(etPassword.getText()).toString();
                 String usernameWithGmail = username + "@gmail.com";
 
                 if (TextUtils.isEmpty(username)){

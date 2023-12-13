@@ -25,27 +25,38 @@
                 android:layout_height="wrap_content"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                android:text="Checkout"
+                android:text="My Cart"
                 android:textSize="30sp"
                 android:textStyle="bold"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="300dp"
+            android:layout_height="500dp"
             android:orientation="vertical"
             android:padding="16dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Cart"/>
+                android:text="Cart" />
 
             <ListView
                 android:id="@+id/lvProductsToCheckout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:divider="@color/white"
+                android:dividerHeight="8dp" />
 
+            <TextView
+                android:id="@+id/tvCartNoOrders"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:text="You have no current orders."
+                android:visibility="gone"/>
         </LinearLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -69,55 +80,10 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Contact Information"
-                android:textStyle="bold"/>
-
-            <TextView
-                android:id="@+id/tvCustAddress"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="123 Sample Address"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Always check your address and contact information to avoid loses delivery delay."
-                android:textStyle="italic"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="Mode of Payment"
-                android:textStyle="bold"/>
-
-            <RadioButton
-                android:id="@+id/rdBtnGcash"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="G-Cash" />
-
-            <RadioButton
-                android:id="@+id/rdBtnCashOnDelivery"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Cash on Delivery" />
-
-        </LinearLayout>
     </LinearLayout>
 
     <Button
-        android:id="@+id/btnProceedToDelivery"
+        android:id="@+id/btnProceedToCheckout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintBottom_toTopOf="@id/btnCancelCheckout"

@@ -4,9 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:padding="16dp"
-    tools:context=".ui.RegistrationActivity">
+    tools:context=".ui.AccountActivity">
 
     <EditText
         android:id="@+id/etCompleteName"
@@ -39,7 +38,6 @@
         android:hint="Birthdate (MM/DD/YYYY)"
         android:inputType="date"
         android:gravity="center"
-        android:focusable="false"
         android:background="@drawable/rectangle_rounded_edittext"/>
 
     <EditText
@@ -51,6 +49,7 @@
         android:hint="Senior Citizen ID No. (Optional)"
         android:inputType="text"
         android:gravity="center"
+        android:visibility="gone"
         android:background="@drawable/rectangle_rounded_edittext"/>
 
     <EditText
@@ -97,44 +96,22 @@
         android:gravity="center"
         android:background="@drawable/rectangle_rounded_brown"/>
 
-    <EditText
-        android:id="@+id/etPasswordReg"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/etUsernameReg"
-        android:hint="Password"
-        android:inputType="textPassword"
-        android:gravity="center"
-        android:background="@drawable/rectangle_rounded_brown"/>
-
-    <EditText
-        android:id="@+id/etConfirmPasswordReg"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/etPasswordReg"
-        android:hint="Confirm Password"
-        android:inputType="textPassword"
-        android:gravity="center"
-        android:background="@drawable/rectangle_rounded_brown"/>
-
     <Button
-        android:id="@+id/btnRegister"
+        android:id="@+id/btnUpdate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/etConfirmPasswordReg"
+        app:layout_constraintTop_toBottomOf="@id/etUsernameReg"
         android:padding="8dp"
         android:backgroundTint="#13548A"
         android:textColor="@color/white"
-        android:text="Register"/>
+        android:text="Update"/>
 
     <Button
         android:id="@+id/btnCancelRegistration"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/btnRegister"
+        app:layout_constraintTop_toBottomOf="@id/btnUpdate"
         android:padding="8dp"
         android:backgroundTint="#566C7D"
         android:text="Cancel"
@@ -150,5 +127,4 @@
         app:layout_constraintBottom_toBottomOf="parent"
         android:visibility="invisible"
         android:layout_gravity="center"/>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

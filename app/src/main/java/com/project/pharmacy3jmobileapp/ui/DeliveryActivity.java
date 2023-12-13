@@ -3,7 +3,9 @@ package com.project.pharmacy3jmobileapp.ui;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -41,6 +43,11 @@ public class DeliveryActivity extends AppCompatActivity {
         lvCustomerDeliveryDetails = findViewById(R.id.lvOrderDelivery);
 
         retrievedCustomerOrders(customerName);
+
+        Button btnBack = findViewById(R.id.btnBack);
+        btnBack.setOnClickListener(v -> {
+            startActivity(new Intent(getApplicationContext(), HomepageActivity.class));
+        });
     }
 
     private void showCustomerDeliveryDetails() {

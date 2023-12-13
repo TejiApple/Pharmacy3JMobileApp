@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.RadioButton;
@@ -25,23 +26,24 @@ import com.project.pharmacy3jmobileapp.model.RegistrationModel;
 import com.project.pharmacy3jmobileapp.model.OrderDetails;
 import com.project.pharmacy3jmobileapp.ui.adapter.CartProductDetailsListAdapter;
 
-import java.text.DateFormat;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.Random;
+import java.util.HashMap;
 
 public class CartActivity extends AppCompatActivity implements OrderDetails {
     String productDetails, itemName, username, fullName, address;
 
     Double initialAmount;
     Integer itemQuantity = 1;
+    Integer currentItemSelected = 0;
+
     ListView lvProductInTheCart;
-    Button btnProceedToDelivery, btnCancel;
-    TextView tvTotalAmount, tvCustAddress;
+    Button btnProceedToCheckout, btnCancel;
+    TextView tvTotalAmount, tvCustAddress, tvCartNoOrders;
     RadioButton rdBtnGcash, rdBtnCod;
     CartProductDetailsListAdapter cartProductDetailsListAdapter;
     ArrayList<ProductsModel> productsModelArrayList;
@@ -50,96 +52,140 @@ public class CartActivity extends AppCompatActivity implements OrderDetails {
     ArrayList<RegistrationModel> registrationModelArrayList;
     OrdersModel ordersModels;
 
+    HashMap<Integer, String> itemsSubtotal = new HashMap<>();
+    ArrayList<Integer> itemPositionList = new ArrayList<>();
+    JSONArray productsOnCartArray;
+
+    SharedPreferences sp;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cart);
+        //Setting up views
+        lvProductInTheCart = findViewById(R.id.lvProductsToCheckout);
+        btnProceedToCheckout = findViewById(R.id.btnProceedToCheckout);
+        btnCancel = findViewById(R.id.btnCancelCheckout);
+        tvTotalAmount = findViewById(R.id.tvCartTotalAmount);
+        tvCartNoOrders = findViewById(R.id.tvCartNoOrders);
 
-        SharedPreferences sp = getSharedPreferences("sp", MODE_PRIVATE);
+        sp = getSharedPreferences("sp", MODE_PRIVATE);
         username = sp.getString("username", "");
+        sp.edit().remove("selectedItems").apply();
 
-        productDetails = Objects.requireNonNull(getIntent().getExtras().get("productDetails")).toString();
-        Gson gson = new Gson();
-        ProductsModel productsInTheCart = gson.fromJson(productDetails, ProductsModel.class);
-        productsModelArrayList = new ArrayList<>();
-        productsModelArrayList.add(productsInTheCart);
+        String productsOnCart = sp.getString("productDetails", "");
+        if (!productsOnCart.isEmpty()){
+            try {
+                productsOnCartArray = new JSONArray(productsOnCart);
+                JSONObject productsOnCartObj;
+                productsModelArrayList = new ArrayList<>();
+
+                for (int i = 0; i < productsOnCartArray.length(); i++){
+                    productsOnCartObj = productsOnCartArray.getJSONObject(i);
+                    Gson gson = new Gson();
+                    ProductsModel productsInTheCart = gson.fromJson(String.valueOf(productsOnCartObj), ProductsModel.class);
+                    productsModelArrayList.add(productsInTheCart);
+                }
+
+            } catch (JSONException e) {
+                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+            showProductsInTheCart();
+            btnProceedToCheckout.setEnabled(true);
+        } else {
+            lvProductInTheCart.setVisibility(View.GONE);
+            tvCartNoOrders.setVisibility(View.VISIBLE);
+            btnProceedToCheckout.setEnabled(false);
+        }
+//
+//        productDetails = Objects.requireNonNull(getIntent().getExtras().get("productDetails")).toString();
+//        Gson gson = new Gson();
+//        ProductsModel productsInTheCart = gson.fromJson(productDetails, ProductsModel.class);
+//        productsModelArrayList = new ArrayList<>();
+//        productsModelArrayList.add(productsInTheCart);
 
         registrationModelArrayList = new ArrayList<>();
 
-        //Setting up views
-        lvProductInTheCart = findViewById(R.id.lvProductsToCheckout);
-        btnProceedToDelivery = findViewById(R.id.btnProceedToDelivery);
-        btnCancel = findViewById(R.id.btnCancelCheckout);
-        tvTotalAmount = findViewById(R.id.tvCartTotalAmount);
-        tvCustAddress = findViewById(R.id.tvCustAddress);
-        rdBtnGcash = findViewById(R.id.rdBtnGcash);
-        rdBtnCod = findViewById(R.id.rdBtnCashOnDelivery);
+
+//        tvCustAddress = findViewById(R.id.tvCustAddress);
+//        rdBtnGcash = findViewById(R.id.rdBtnGcash);
+//        rdBtnCod = findViewById(R.id.rdBtnCashOnDelivery);
 
         DecimalFormat df = new DecimalFormat("#,###.00");
-        initialAmount = Double.parseDouble(df.format(productsModelArrayList.get(0).getPrice()));
-        String formattedPrice = "Php " + df.format(productsModelArrayList.get(0).getPrice());
-        tvTotalAmount.setText(formattedPrice);
+//        initialAmount = Double.parseDouble(df.format(productsModelArrayList.get(0).getPrice()));
+//        String formattedPrice = "Php " + df.format(productsModelArrayList.get(0).getPrice());
+//        tvTotalAmount.setText("Php 0.00");
         dbRef = FirebaseDatabase.getInstance().getReference();
 
         //Call functions
-        retrieveData();
-        showProductsInTheCart();
-        proceedToDelivery();
+//        retrieveData();
+        proceedToCheckout();
         cancelCheckout();
     }
 
     private void showProductsInTheCart() {
-        cartProductDetailsListAdapter = new CartProductDetailsListAdapter(CartActivity.this, productsModelArrayList, this);
+        cartProductDetailsListAdapter = new CartProductDetailsListAdapter(CartActivity.this, productsModelArrayList, this, sp, "CartActivity");
         lvProductInTheCart.setAdapter(cartProductDetailsListAdapter);
     }
 
-    private void proceedToDelivery() {
-        btnProceedToDelivery.setOnClickListener(v -> {
-            try {
-                fullName = registrationModelArrayList.get(0).getCompleteName();
-                String contactNumber = registrationModelArrayList.get(0).getMobilePhone();
-                double discount = 0.0;
-                double totalPay = 0;
-
-                if (registrationModelArrayList.get(0).getSeniorCitizenId().length() > 0){
-                    discount = 0.8;
-                    totalPay = initialAmount * discount;
-                }
-
-                int unitPrice = 0;
-                for (int i = 0; i < productsModelArrayList.size(); i++){
-                    itemName = productsModelArrayList.get(i).getBrandName();
-                    unitPrice = productsModelArrayList.get(i).getPrice();
-                }
-
-                String paymentMode = "";
-                if (rdBtnGcash.isChecked()){
-                    paymentMode = "Gcash";
-                } else if (rdBtnCod.isChecked()){
-                    paymentMode = "Cash on delivery";
-                } else {
-                    Toast.makeText(CartActivity.this, "Payment mode is Required!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                int randomProductId = new Random().nextInt(10000);
-                int randomItemNumber = new Random().nextInt(10000);
-
-                SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy");
-                String date = dateFormat.format(new Date());
-                ordersModels = new OrdersModel(initialAmount.toString(), contactNumber, "", date, discount, fullName,
-                        itemName, randomItemNumber, "Door-to-door", paymentMode, "Sample Prescription", randomProductId, itemQuantity,
-                        address, "Pending", totalPay, unitPrice);
-
-                dbRef.child("orders").push().setValue(ordersModels);
-                Toast.makeText(CartActivity.this, "Checkout successful!", Toast.LENGTH_SHORT).show();
-
-                Intent intent = new Intent(getApplicationContext(), DeliveryActivity.class);
-                intent.putExtra("customerName", fullName);
+    private void proceedToCheckout() {
+        btnProceedToCheckout.setOnClickListener(v -> {
+            if (currentItemSelected > 0){
+                String amount = tvTotalAmount.getText().toString();
+                Intent intent = new Intent(getApplicationContext(), CheckoutActivity.class);
+                intent.putExtra("totalAmount", amount);
+                intent.putExtra("itemQuantity", itemQuantity);
                 startActivity(intent);
-            } catch (Exception e) {
-                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Please select an item to checkout", Toast.LENGTH_SHORT).show();
             }
+
+
+//            try {
+//                fullName = registrationModelArrayList.get(0).getCompleteName();
+//                String contactNumber = registrationModelArrayList.get(0).getMobilePhone();
+//                double discount = 0.0;
+//                double totalPay = 0;
+//
+//                if (registrationModelArrayList.get(0).getSeniorCitizenId().length() > 0){
+//                    discount = 0.8;
+//                    totalPay = initialAmount * discount;
+//                }
+//
+//                int unitPrice = 0;
+//                for (int i = 0; i < productsModelArrayList.size(); i++){
+//                    itemName = productsModelArrayList.get(i).getBrandName();
+//                    unitPrice = productsModelArrayList.get(i).getPrice();
+//                }
+//
+//                String paymentMode = "";
+//                if (rdBtnGcash.isChecked()){
+//                    paymentMode = "Gcash";
+//                } else if (rdBtnCod.isChecked()){
+//                    paymentMode = "Cash on delivery";
+//                } else {
+//                    Toast.makeText(CartActivity.this, "Payment mode is Required!", Toast.LENGTH_SHORT).show();
+//                    return;
+//                }
+//
+//                int randomProductId = new Random().nextInt(10000);
+//                int randomItemNumber = new Random().nextInt(10000);
+//
+//                SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM dd, yyyy");
+//                String date = dateFormat.format(new Date());
+//                ordersModels = new OrdersModel(initialAmount.toString(), contactNumber, "", date, discount, fullName,
+//                        itemName, randomItemNumber, "Door-to-door", paymentMode, "Sample Prescription", randomProductId, itemQuantity,
+//                        address, "Pending", totalPay, unitPrice);
+//
+//                dbRef.child("orders").push().setValue(ordersModels);
+//                Toast.makeText(CartActivity.this, "Checkout successful!", Toast.LENGTH_SHORT).show();
+//
+//                Intent intent = new Intent(getApplicationContext(), DeliveryActivity.class);
+//                intent.putExtra("customerName", fullName);
+//                startActivity(intent);
+//            } catch (Exception e) {
+//                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+//            }
 
         });
     }
@@ -161,7 +207,7 @@ public class CartActivity extends AppCompatActivity implements OrderDetails {
                                 String barangay = registrationModelArrayList.get(0).getBarangay();
                                 String houseNo = registrationModelArrayList.get(0).getHouseNo();
                                 address = houseNo + barangay;
-                                tvCustAddress.setText(address);
+//                                tvCustAddress.setText(address);
                             }
 
                         }
@@ -188,9 +234,42 @@ public class CartActivity extends AppCompatActivity implements OrderDetails {
         });
     }
     @Override
-    public void cartTotalAmount(String totalAmount, int quantity) {
-        tvTotalAmount.setText("Php " + totalAmount);
-        initialAmount = Double.parseDouble(totalAmount);
-        itemQuantity = quantity;
+    public void cartTotalAmount(String totalAmount, int quantity, int selectedItem, int position) {
+        try {
+            double finalTotalAmt = 0.00;
+            if (selectedItem == 1){
+                itemPositionList.add(position);
+                itemsSubtotal.put(position, totalAmount);
+                for (String subtotal : itemsSubtotal.values()){
+                    finalTotalAmt += Double.parseDouble(subtotal);
+                }
+            } else {
+                itemPositionList.remove(Integer.valueOf(position));
+                itemsSubtotal.remove(position);
+                double d = 0.00;
+                for (String subtotal : itemsSubtotal.values()){
+                    d += Double.parseDouble(subtotal);
+                    finalTotalAmt = d;
+                }
+
+            }
+            DecimalFormat df = new DecimalFormat("#,##0.00");
+
+            tvTotalAmount.setText("Php " + df.format(finalTotalAmt));
+            initialAmount = Double.parseDouble(String.valueOf(finalTotalAmt));
+            itemQuantity = quantity;
+            if (selectedItem == 1){
+                currentItemSelected++;
+            } else {
+                if (currentItemSelected > 0){
+                    currentItemSelected--;
+                } else {
+                    currentItemSelected = 0;
+                }
+            }
+        } catch (Exception e){
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+
     }
 }

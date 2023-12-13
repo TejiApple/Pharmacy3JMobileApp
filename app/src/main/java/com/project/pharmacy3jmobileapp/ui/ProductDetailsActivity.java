@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Html;
@@ -15,6 +16,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.project.pharmacy3jmobileapp.R;
@@ -33,7 +35,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
     String brandName, description, price, productDetails, genericName, category, imageUrl;
     TextView tvProductName, tvDescription, tvPrice, tvItemBrandName, tvItemPrice, tvItemGenericName, tvItemDesc, tvItemCategory;
     ImageView ivProduct;
-    Button btnAddToCart;
+    Button btnAddToCart, btnBuyNow;
 
     ArrayList<ProductsModel> productsModelArrayList;
 
@@ -43,6 +45,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_product_details);
 
         btnAddToCart = findViewById(R.id.btnAddToCart);
+        btnBuyNow = findViewById(R.id.btnBuyNow);
         productDetails = Objects.requireNonNull(getIntent().getExtras().get("productModel")).toString();
         category = getIntent().getExtras().getString("category");
 
@@ -96,10 +99,66 @@ public class ProductDetailsActivity extends AppCompatActivity {
     }
 
     private void addToCart() {
+        SharedPreferences sharedPref = getSharedPreferences("sp", MODE_PRIVATE);
+        JSONArray productsArray = new JSONArray();
+
+
+        String productsOnCart = sharedPref.getString("productDetails", "");
+        if (!productsOnCart.isEmpty()){
+            try {
+                productsArray = new JSONArray(productsOnCart);
+            } catch (JSONException e) {
+                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        JSONArray finalProductsArray = productsArray;
         btnAddToCart.setOnClickListener(v -> {
-            Intent intent = new Intent(getApplicationContext(), CartActivity.class);
-            intent.putExtra("productDetails", productDetails);
-            startActivity(intent);
+//            Intent intent = new Intent(getApplicationContext(), CartActivity.class);
+//            intent.putExtra("productDetails", productDetails);
+//            startActivity(intent);
+
+
+            SharedPreferences.Editor editor = sharedPref.edit();
+            try {
+                JSONObject productDetailsObj = new JSONObject(productDetails);
+                finalProductsArray.put(productDetailsObj);
+                editor.putString("productDetails", finalProductsArray.toString());
+                editor.apply();
+                Toast.makeText(this, "Item added to cart successfully!", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(getApplicationContext(), HomepageActivity.class));
+            } catch (JSONException e) {
+                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void buyNow() {
+        SharedPreferences sharedPref = getSharedPreferences("sp", MODE_PRIVATE);
+        JSONArray productsArray = new JSONArray();
+
+        String productsOnCart = sharedPref.getString("productDetails", "");
+        if (!productsOnCart.isEmpty()){
+            try {
+                productsArray = new JSONArray(productsOnCart);
+            } catch (JSONException e) {
+                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        JSONArray finalProductsArray = productsArray;
+        btnBuyNow.setOnClickListener(v -> {
+
+            SharedPreferences.Editor editor = sharedPref.edit();
+            try {
+                JSONObject productDetailsObj = new JSONObject(productDetails);
+                finalProductsArray.put(productDetailsObj);
+                editor.putString("buyNow", finalProductsArray.toString());
+                editor.apply();
+                startActivity(new Intent(getApplicationContext(), CheckoutActivity.class));
+            } catch (JSONException e) {
+                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
         });
     }
 

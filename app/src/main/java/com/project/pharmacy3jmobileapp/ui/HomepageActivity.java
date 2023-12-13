@@ -4,11 +4,15 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.graphics.Color;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -26,7 +30,6 @@ import com.project.pharmacy3jmobileapp.ui.adapter.HomepageGridViewAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -38,8 +41,9 @@ public class HomepageActivity extends AppCompatActivity {
     HomepageGridViewAdapter productsAdapter;
     GridView gridView;
     String username;
-    TextView tvUsername;
-    ImageButton btnHealthCare, btnPersonalCare, btnBeautyCare, btnBabyAndKids;
+    TextView tvUsername, tvProductsOnCart;
+    ImageButton btnHealthCare, btnPersonalCare, btnBeautyCare, btnBabyAndKids, btnCart, btnSettings;
+    EditText etSearchProducts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,21 +52,76 @@ public class HomepageActivity extends AppCompatActivity {
 
         gridView = findViewById(R.id.gvProducts);
         tvUsername = findViewById(R.id.tvUser);
+        tvProductsOnCart = findViewById(R.id.tvProductsOnCart);
         btnHealthCare = findViewById(R.id.ibHealthCare);
         btnPersonalCare = findViewById(R.id.ibPersonalCare);
         btnBeautyCare = findViewById(R.id.ibBeautyCare);
         btnBabyAndKids = findViewById(R.id.ibBabyAndKids);
+        btnCart = findViewById(R.id.ibCart);
+        btnSettings = findViewById(R.id.ibSettings);
+        etSearchProducts = findViewById(R.id.etSearchProducts);
 
-        username = getIntent().getExtras().get("username").toString();
-        tvUsername.setText("Hello " + username);
+        SharedPreferences sp = getSharedPreferences("sp", MODE_PRIVATE);
+        username = sp.getString("username", "");
+        tvUsername.setText("Hello, " + username);
+        String productsOnCart = sp.getString("productDetails", "");
+        if (!productsOnCart.isEmpty()){
+            try {
+                JSONArray productsOnCartArray = new JSONArray(productsOnCart);
+                tvProductsOnCart.setText(Integer.toString(productsOnCartArray.length()));
+            } catch (JSONException e) {
+                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
 
+        }
         displayHealthCareProducts();
 
         btnHealthCare.setOnClickListener(v -> displayHealthCareProducts());
         btnPersonalCare.setOnClickListener(v -> displayPersonalCareProducts());
         btnBeautyCare.setOnClickListener(v -> displayBeautyCareProducts());
         btnBabyAndKids.setOnClickListener(v -> displayBabyAndKidsProducts());
+        btnCart.setOnClickListener(v -> startActivity(new Intent(getApplicationContext(), CartActivity.class)));
+        btnSettings.setOnClickListener(v -> startActivity(new Intent(getApplicationContext(), SettingsActivity.class)));
 
+        etSearchProducts.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                performSearch(s.toString());
+            }
+        });
+        etSearchProducts.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                performSearch(etSearchProducts.getText().toString());
+                return true;
+            }
+            return false;
+        });
+    }
+
+    private void performSearch(String value) {
+        try {
+            ArrayList<ProductsModel> productsSearchResult = new ArrayList<>();
+            for (int i = 0; i < productsModelArrayList.size(); i++){
+                ProductsModel productsModel = productsModelArrayList.get(i);
+                if (productsModel.getBrandName().toLowerCase().contains(value.toLowerCase())){
+                    productsSearchResult.add(productsModel);
+                }
+            }
+            productsAdapter = new HomepageGridViewAdapter(HomepageActivity.this, productsSearchResult);
+            gridView.setAdapter(productsAdapter);
+        } catch (Exception e){
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void displayHealthCareProducts() {
