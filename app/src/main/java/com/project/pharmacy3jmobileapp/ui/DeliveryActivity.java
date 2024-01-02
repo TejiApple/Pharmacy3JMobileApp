@@ -46,7 +46,9 @@ public class DeliveryActivity extends AppCompatActivity {
 
         Button btnBack = findViewById(R.id.btnBack);
         btnBack.setOnClickListener(v -> {
-            startActivity(new Intent(getApplicationContext(), HomepageActivity.class));
+            Intent intent = new Intent(getApplicationContext(), HomepageActivity.class);
+            intent.putExtra("fromWhatTab", "Cart");
+            startActivity(intent);
         });
     }
 
@@ -61,26 +63,14 @@ public class DeliveryActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()){
 //                        String completeName = Objects.requireNonNull(dataSnapshot.child("completeName").getValue()).toString();
-                    String key = dataSnapshot.getKey();
-                    dbRef.child("orders").addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                            for (DataSnapshot dataSnapshot1 : snapshot.getChildren()){
-                                OrdersModel ordersModel = dataSnapshot1.getValue(OrdersModel.class);
-                                assert ordersModel != null;
-                                if (ordersModel.getFullName().equals(customerName)){
-                                    ordersModelArrayList.add(ordersModel);
-                                    showCustomerDeliveryDetails();
-                                }
-                            }
+                    OrdersModel ordersModel = dataSnapshot.getValue(OrdersModel.class);
+                    assert ordersModel != null;
+                    if (ordersModel.getFullName().equals(customerName)){
+                        if (ordersModel.getDateDelivered().isEmpty()){
+                            ordersModelArrayList.add(ordersModel);
+                            showCustomerDeliveryDetails();
                         }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-                            Toast.makeText(DeliveryActivity.this, error.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    }
                 }
             }
 

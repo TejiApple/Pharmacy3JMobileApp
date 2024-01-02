@@ -19,6 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.project.pharmacy3jmobileapp.R;
 import com.project.pharmacy3jmobileapp.model.ProductsModel;
 import com.squareup.picasso.Picasso;
@@ -54,14 +55,19 @@ public class ProductDetailsActivity extends AppCompatActivity {
             brandName = productDetailsObj.getString("brandName");
             description = productDetailsObj.getString("description");
             price = productDetailsObj.getString("price");
-            genericName = productDetailsObj.getString("genericName");
+            if (productDetailsObj.has("genericName")){
+                genericName = productDetailsObj.getString("genericName");
+            } else {
+                genericName = "";
+            }
             imageUrl = productDetailsObj.getString("imageUrl");
 
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
         showProductDetails();
         addToCart();
+        buyNow();
     }
 
     @SuppressLint("SetTextI18n")
@@ -87,7 +93,11 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
         tvItemBrandName.setText(brandName);
         tvItemPrice.setText(formattedPrice);
-        tvItemGenericName.setText(genericName);
+        if (!genericName.isEmpty()){
+            tvItemGenericName.setText(genericName);
+        } else {
+            tvItemGenericName.setText("");
+        }
 
         SpannableString spannableDescTitle = new SpannableString("Description: " + description);
         spannableDescTitle.setSpan(new StyleSpan(Typeface.BOLD), 0, 12, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -122,40 +132,87 @@ public class ProductDetailsActivity extends AppCompatActivity {
             SharedPreferences.Editor editor = sharedPref.edit();
             try {
                 JSONObject productDetailsObj = new JSONObject(productDetails);
-                finalProductsArray.put(productDetailsObj);
-                editor.putString("productDetails", finalProductsArray.toString());
-                editor.apply();
-                Toast.makeText(this, "Item added to cart successfully!", Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(getApplicationContext(), HomepageActivity.class));
+                String productName = productDetailsObj.getString("brandName");
+//                for (int i = 0; i < finalProductsArray.length(); i++){
+//                    if (finalProductsArray.getJSONObject(i).getString("brandName").equals(productName)){
+//                        int selectedProductQuantity = finalProductsArray.getJSONObject(i).getInt("quantity") + 1;
+//                        productDetailsObj.put("quantity", selectedProductQuantity);
+//                        finalProductsArray.put(productDetailsObj);
+//                        finalProductsArray.remove(i);
+//                        break;
+//                    } else {
+//                        finalProductsArray.put(productDetailsObj);
+//                        break;
+//                    }
+//                }
+                JsonArray jsonArr = new Gson().fromJson(productsOnCart, JsonArray.class);
+                    if (hasValue(jsonArr, productName)){
+                        Toast.makeText(this, "This item is already in the cart!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        finalProductsArray.put(productDetailsObj);
+                        editor.putString("productDetails", finalProductsArray.toString());
+                        editor.apply();
+                        Toast.makeText(this, "Item added to cart successfully!", Toast.LENGTH_SHORT).show();
+                    }
+//                for (int i = 0; i < finalProductsArray.length(); i++){
+//                    if (finalProductsArray.getJSONObject(i).getString("brandName").equals(productName)){
+//                        Toast.makeText(this, "This item is already in the cart!", Toast.LENGTH_SHORT).show();
+//                        break;
+//                    } else {
+//                        int selectedProductQuantity = finalProductsArray.getJSONObject(i).getInt("quantity") + 1;
+//                        productDetailsObj.put("quantity", selectedProductQuantity);
+//                        finalProductsArray.put(productDetailsObj);
+//                        editor.putString("productDetails", finalProductsArray.toString());
+//                        editor.apply();
+//                        Toast.makeText(this, "Item added to cart successfully!", Toast.LENGTH_SHORT).show();
+//                    }
+//                }
+
+                Intent intent = new Intent(getApplicationContext(), HomepageActivity.class);
+                intent.putExtra("fromWhatTab", category);
+                startActivity(intent);
             } catch (JSONException e) {
                 Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
+    private boolean hasValue(JsonArray json, String value){
+        if (json != null){
+            for (int i = 0; i < json.size(); i++){
+                if (json.get(i).getAsJsonObject().get("brandName").getAsString().equals(value)){
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     private void buyNow() {
         SharedPreferences sharedPref = getSharedPreferences("sp", MODE_PRIVATE);
         JSONArray productsArray = new JSONArray();
 
-        String productsOnCart = sharedPref.getString("productDetails", "");
-        if (!productsOnCart.isEmpty()){
-            try {
-                productsArray = new JSONArray(productsOnCart);
-            } catch (JSONException e) {
-                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        }
+//        String productsOnCart = sharedPref.getString("productDetails", "");
+//        if (!productsOnCart.isEmpty()){
+//            try {
+//                productsArray = new JSONArray(productsOnCart);
+//            } catch (JSONException e) {
+//                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+//            }
+//        }
 
-        JSONArray finalProductsArray = productsArray;
         btnBuyNow.setOnClickListener(v -> {
 
             SharedPreferences.Editor editor = sharedPref.edit();
             try {
                 JSONObject productDetailsObj = new JSONObject(productDetails);
-                finalProductsArray.put(productDetailsObj);
-                editor.putString("buyNow", finalProductsArray.toString());
+                productsArray.put(productDetailsObj);
+                editor.putString("buyNow", productsArray.toString());
                 editor.apply();
-                startActivity(new Intent(getApplicationContext(), CheckoutActivity.class));
+                Intent intent = new Intent(getApplicationContext(), CheckoutActivity.class);
+                intent.putExtra("fromBuyNow", "fromBuyNow");
+                startActivity(intent);
             } catch (JSONException e) {
                 Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
             }

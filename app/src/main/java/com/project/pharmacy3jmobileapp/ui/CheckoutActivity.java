@@ -2,12 +2,16 @@ package com.project.pharmacy3jmobileapp.ui;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.math.MathUtils;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.TextView;
@@ -19,6 +23,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.project.pharmacy3jmobileapp.R;
 import com.project.pharmacy3jmobileapp.model.OrderDetails;
 import com.project.pharmacy3jmobileapp.model.OrdersModel;
@@ -30,18 +35,20 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class CheckoutActivity extends AppCompatActivity implements OrderDetails {
-    String productDetails, itemName, username, fullName, address;
-
+    String productDetails, itemName, username, fullName, address, fromBuyNow;
+    EditText etGcashNumber;
+    Dialog dialog;
     Double initialAmount;
+    String amountForBuyNow;
     Integer itemQuantity = 0;
     ListView lvProductInTheCart;
     Button btnProceedToOrders, btnCancel;
@@ -64,44 +71,57 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
 
         sp = getSharedPreferences("sp", MODE_PRIVATE);
         username = sp.getString("username", "");
-        String productsOnCart = sp.getString("selectedItems", "");
+        String selectedProducts = sp.getString("selectedItems", "");
         String productsOnBuyNow = sp.getString("buyNow", "");
-        if (!productsOnCart.isEmpty()){
-            try {
-                JSONArray productsOnCartArray = new JSONArray(productsOnCart);
-                JSONObject productsOnCartObj;
-                productsModelArrayList = new ArrayList<>();
+        fromBuyNow = Objects.requireNonNull(getIntent().getExtras()).getString("fromBuyNow");
+        assert fromBuyNow != null;
+        if (fromBuyNow.isEmpty()){
+            if (!selectedProducts.isEmpty()){
+                try {
+                    JSONArray productsOnCartArray = new JSONArray(selectedProducts);
+                    JSONObject productsOnCartObj;
+                    productsModelArrayList = new ArrayList<>();
 
 
-                for (int i = 0; i < productsOnCartArray.length(); i++){
-                    productsOnCartObj = productsOnCartArray.getJSONObject(i);
-                    Gson gson = new Gson();
-                    ProductsModel productsInTheCart = gson.fromJson(String.valueOf(productsOnCartObj), ProductsModel.class);
-                    productsModelArrayList.add(productsInTheCart);
-                    int quantityFromObj = productsOnCartObj.getInt("quantity");
-                    if (itemQuantity == 0){
-                        itemQuantity = quantityFromObj;
-                    } else {
-                        itemQuantity = quantityFromObj + itemQuantity;
+                    for (int i = 0; i < productsOnCartArray.length(); i++){
+                        productsOnCartObj = productsOnCartArray.getJSONObject(i);
+                        Gson gson = new Gson();
+                        ProductsModel productsInTheCart = gson.fromJson(String.valueOf(productsOnCartObj), ProductsModel.class);
+                        productsModelArrayList.add(productsInTheCart);
+                        int quantityFromObj = productsOnCartObj.getInt("quantity");
+                        if (itemQuantity == 0){
+                            itemQuantity = quantityFromObj;
+                        } else {
+                            itemQuantity = quantityFromObj + itemQuantity;
+                        }
+                        initialAmount = productsOnCartObj.getDouble("totalAmount");
                     }
-                    initialAmount = productsOnCartObj.getDouble("totalAmount");
-                }
 
-            } catch (JSONException e) {
-                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        } else if (!productsOnBuyNow.isEmpty()) {
-            try {
-                JSONArray productsOnBuyNowArray = new JSONArray(productsOnBuyNow);
-                JSONObject productsOnBuyNowObj;
-                for (int i = 0; i < productsOnBuyNowArray.length(); i++){
-                    productsOnBuyNowObj = productsOnBuyNowArray.getJSONObject(i);
-                    Gson gson = new Gson();
-                    ProductsModel productsInTheCart = gson.fromJson(String.valueOf(productsOnBuyNowObj), ProductsModel.class);
-                    productsModelArrayList.add(productsInTheCart);
+                } catch (JSONException e) {
+                    Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
-            } catch (JSONException e) {
-                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            if (!productsOnBuyNow.isEmpty()) {
+                try {
+                    productsModelArrayList = new ArrayList<>();
+                    JSONArray productsOnBuyNowArray = new JSONArray(productsOnBuyNow);
+                    JSONObject productsOnBuyNowObj;
+                    for (int i = 0; i < productsOnBuyNowArray.length(); i++){
+                        productsOnBuyNowObj = productsOnBuyNowArray.getJSONObject(i);
+                        if (productsOnBuyNowObj.has("totalAmount")){
+                            productsOnBuyNowObj.put("totalAmount", productsOnBuyNowObj.getString("totalAmount"));
+                        } else {
+                            productsOnBuyNowObj.put("totalAmount", productsOnBuyNowObj.getString("price"));
+                        }
+                        Gson gson = new Gson();
+                        ProductsModel productsInTheCart = gson.fromJson(String.valueOf(productsOnBuyNowObj), ProductsModel.class);
+                        productsModelArrayList.add(productsInTheCart);
+                    }
+
+                } catch (JSONException e) {
+                    Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
             }
         }
 //        productDetails = Objects.requireNonNull(getIntent().getExtras().get("productDetails")).toString();
@@ -116,7 +136,7 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
         btnCancel = findViewById(R.id.btnCancelCheckout);
         tvTotalAmount = findViewById(R.id.tvCartTotalAmount);
         tvCustAddress = findViewById(R.id.tvCustAddress);
-//        rdBtnGcash = findViewById(R.id.rdBtnGcash);
+        rdBtnGcash = findViewById(R.id.rdBtnGcash);
         rdBtnCod = findViewById(R.id.rdBtnCashOnDelivery);
 
 //        initialAmount = Double.parseDouble(df.format(productsModelArrayList.get(0).getPrice()));
@@ -129,8 +149,55 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
         showProductsInTheCart();
         proceedToCheckout();
         cancelCheckout();
+        showGcashDialog();
     }
 
+    private void showGcashDialog(){
+        dialog = new Dialog(this);
+
+        rdBtnGcash.setOnClickListener(v1 -> {
+            try {
+                dialog.setContentView(R.layout.gcash_dialog);
+                etGcashNumber = dialog.findViewById(R.id.etGcashNumber);
+                Objects.requireNonNull(dialog.getWindow()).setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+                dialog.setCancelable(false);
+                dialog.getWindow().getAttributes().windowAnimations = R.style.animation;
+
+                String gcashNumber = sp.getString("gcashNumber", "");
+
+                if (!gcashNumber.isEmpty()){
+                    etGcashNumber.setText(gcashNumber);
+                } else {
+                    etGcashNumber.setText("");
+                }
+
+                Button confirm = dialog.findViewById(R.id.btnGcashConfirm);
+                Button cancel = dialog.findViewById(R.id.btnGcashCancel);
+                SharedPreferences.Editor editor = sp.edit();
+                confirm.setOnClickListener(v2 -> {
+                    try {
+                        String gcash = etGcashNumber.getText().toString();
+                        if (etGcashNumber.getText().length() > 0){
+                            editor.putString("gcashNumber", gcash);
+                            editor.apply();
+                            dialog.dismiss();
+                        } else {
+                            Toast.makeText(this, "Account number is required!", Toast.LENGTH_SHORT).show();
+                        }
+                    } catch (Exception e){
+
+                    }
+
+                });
+                cancel.setOnClickListener(v2 -> dialog.dismiss());
+                dialog.show();
+            } catch (Exception e){
+                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+
+        });
+
+    }
     private void showProductsInTheCart() {
         cartProductDetailsListAdapter = new CartProductDetailsListAdapter(CheckoutActivity.this, productsModelArrayList, this, sp, "CheckoutActivity");
         lvProductInTheCart.setAdapter(cartProductDetailsListAdapter);
@@ -154,6 +221,36 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
                 double discount = 0.0;
                 double totalPay = 0;
 
+                if (!fromBuyNow.isEmpty()){
+                    String productsOnBuyNow = sp.getString("buyNow", "");
+                    if (!productsOnBuyNow.isEmpty()) {
+                        try {
+                            productsModelArrayList = new ArrayList<>();
+                            JSONArray productsOnBuyNowArray = new JSONArray(productsOnBuyNow);
+                            JSONObject productsOnBuyNowObj;
+                            for (int i = 0; i < productsOnBuyNowArray.length(); i++){
+                                productsOnBuyNowObj = productsOnBuyNowArray.getJSONObject(i);
+                                if (productsOnBuyNowObj.has("totalAmount")){
+                                    productsOnBuyNowObj.put("totalAmount", productsOnBuyNowObj.getString("totalAmount"));
+                                } else {
+                                    productsOnBuyNowObj.put("totalAmount", productsOnBuyNowObj.getString("price"));
+                                }
+                                amountForBuyNow = productsOnBuyNowObj.getString("totalAmount");
+                                Gson gson = new Gson();
+                                ProductsModel productsInTheCart = gson.fromJson(String.valueOf(productsOnBuyNowObj), ProductsModel.class);
+                                productsModelArrayList.add(productsInTheCart);
+                            }
+
+                        } catch (JSONException e) {
+                            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                }
+                if (!amountForBuyNow.isEmpty()){
+                    initialAmount = Double.parseDouble(amountForBuyNow);
+                }
+
                 if (registrationModelArrayList.get(0).getSeniorCitizenId().length() > 0){
                     discount = 0.8;
                     totalPay = initialAmount * discount;
@@ -161,12 +258,12 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
 
                 int unitPrice = 0;
 
-                String paymentMode = "";
-                /*if (rdBtnGcash.isChecked()){
-                    paymentMode = "Gcash";
-                } else */
-                if (rdBtnCod.isChecked()){
-                    paymentMode = "Cash on delivery";
+                AtomicReference<String> paymentMode = new AtomicReference<>("");
+
+                if (rdBtnGcash.isChecked()){
+                    paymentMode.set("Gcash");
+                } else if (rdBtnCod.isChecked()){
+                    paymentMode.set("Cash on delivery");
                 } else {
                     Toast.makeText(CheckoutActivity.this, "Payment mode is Required!", Toast.LENGTH_SHORT).show();
                     return;
@@ -181,15 +278,57 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
                     itemName = productsModelArrayList.get(i).getBrandName();
                     unitPrice = productsModelArrayList.get(i).getPrice();
                     ordersModels = new OrdersModel(initialAmount.toString(), contactNumber, "", date, discount, fullName,
-                            itemName, randomItemNumber, "Door-to-door", paymentMode, "Sample Prescription", randomProductId, itemQuantity,
+                            itemName, randomItemNumber, "Door-to-door", paymentMode.get(), "Sample Prescription", randomProductId, itemQuantity,
                             address, "Pending", totalPay, unitPrice);
 
                     dbRef.child("orders").push().setValue(ordersModels);
                 }
 
-                sp.edit().remove("selectedItems").apply();
-                sp.edit().remove("productDetails").apply();
+                String productsOnCart = sp.getString("productDetails", "");
 
+                JsonArray productsOnCartArray;
+                JSONArray jsonProductsOnCart = new JSONArray();
+
+                if (!fromBuyNow.isEmpty()){
+                    sp.edit().remove("buyNow").apply();
+                } else {
+                    if (!productsOnCart.isEmpty()){
+                        try {
+                            productsOnCartArray = new Gson().fromJson(productsOnCart, JsonArray.class);
+                            if (hasValue(productsOnCartArray, itemName)){
+                                jsonProductsOnCart = new JSONArray(productsOnCart);
+                                ArrayList<Integer> itemPositionList = (ArrayList<Integer>) getIntent().getExtras().get("itemPositionList");
+                                for (int i = 0; i < itemPositionList.size(); i++){
+                                    int index = itemPositionList.get(i);
+                                    jsonProductsOnCart.remove(index);
+                                }
+//                            for (int i = 0; i < jsonProductsOnCart.length(); i++){
+//                                JSONObject productsOnCartObj = jsonProductsOnCart.getJSONObject(i);
+//                                if (productsOnCartObj.getString("brandName").equals(itemName)){
+//                                    int index = productsOnCartObj.
+//                                }
+//                            }
+                            }
+
+//                        productsModelArrayList = new ArrayList<>();
+//
+//                        for (int i = 0; i < productsOnCartArray.length(); i++){
+//                            productsOnCartObj = productsOnCartArray.getJSONObject(i);
+//                            Gson gson = new Gson();
+//                            ProductsModel productsInTheCart = gson.fromJson(String.valueOf(productsOnCartObj), ProductsModel.class);
+//                            productsModelArrayList.add(productsInTheCart);
+//                        }
+
+                        } catch (Exception e) {
+                            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    sp.edit().remove("selectedItems").apply();
+                    sp.edit().putString("productDetails", jsonProductsOnCart.toString()).apply();
+//                sp.edit().remove("productDetails").apply();
+
+                }
 
                 Intent intent = new Intent(getApplicationContext(), DeliveryActivity.class);
                 intent.putExtra("customerName", fullName);
@@ -199,6 +338,18 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
             }
 
         });
+    }
+
+    private boolean hasValue(JsonArray json, String value){
+        if (json != null){
+            for (int i = 0; i < json.size(); i++){
+                if (json.get(i).getAsJsonObject().get("brandName").getAsString().equals(value)){
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private void retrieveData(){

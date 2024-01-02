@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -87,11 +88,18 @@ public class CartActivity extends AppCompatActivity implements OrderDetails {
                     productsModelArrayList.add(productsInTheCart);
                 }
 
+                if (productsOnCartArray.length() == 0){
+                    lvProductInTheCart.setVisibility(View.GONE);
+                    tvCartNoOrders.setVisibility(View.VISIBLE);
+                    btnProceedToCheckout.setEnabled(false);
+                } else {
+                    showProductsInTheCart();
+                    btnProceedToCheckout.setEnabled(true);
+                }
             } catch (JSONException e) {
                 Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
-            showProductsInTheCart();
-            btnProceedToCheckout.setEnabled(true);
+
         } else {
             lvProductInTheCart.setVisibility(View.GONE);
             tvCartNoOrders.setVisibility(View.VISIBLE);
@@ -133,8 +141,10 @@ public class CartActivity extends AppCompatActivity implements OrderDetails {
             if (currentItemSelected > 0){
                 String amount = tvTotalAmount.getText().toString();
                 Intent intent = new Intent(getApplicationContext(), CheckoutActivity.class);
-                intent.putExtra("totalAmount", amount);
+                String formattedAmount = amount.replace("Php ", "");
+                intent.putExtra("totalAmount", formattedAmount);
                 intent.putExtra("itemQuantity", itemQuantity);
+                intent.putExtra("itemPositionList", itemPositionList);
                 startActivity(intent);
             } else {
                 Toast.makeText(this, "Please select an item to checkout", Toast.LENGTH_SHORT).show();
@@ -230,9 +240,19 @@ public class CartActivity extends AppCompatActivity implements OrderDetails {
 
     private void cancelCheckout(){
         btnCancel.setOnClickListener(v -> {
-            startActivity(new Intent(getApplicationContext(), HomepageActivity.class));
+            Intent intent = new Intent(getApplicationContext(), HomepageActivity.class);
+            intent.putExtra("fromWhatTab", "Cart");
+            startActivity(intent);
         });
     }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(getApplicationContext(), HomepageActivity.class);
+        intent.putExtra("fromWhatTab", "Cart");
+        startActivity(intent);
+    }
+
     @Override
     public void cartTotalAmount(String totalAmount, int quantity, int selectedItem, int position) {
         try {

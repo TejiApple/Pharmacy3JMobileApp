@@ -50,6 +50,8 @@ public class RegistrationActivity extends AppCompatActivity {
         etSeniorCitizenId = findViewById(R.id.etSeniorCitizenId);
         etCityMunicipality = findViewById(R.id.etCityMunicipality);
         etBarangay = findViewById(R.id.etBarangay);
+        etCityMunicipality.setEnabled(false);
+        etBarangay.setEnabled(false);
         etHouseNo = findViewById(R.id.etHouseNo);
         etUsernameReg = findViewById(R.id.etUsernameReg);
         etPasswordReg = findViewById(R.id.etPasswordReg);

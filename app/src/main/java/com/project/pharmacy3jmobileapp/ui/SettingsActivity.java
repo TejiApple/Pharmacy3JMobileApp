@@ -3,15 +3,18 @@ package com.project.pharmacy3jmobileapp.ui;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.project.pharmacy3jmobileapp.MainActivity;
 import com.project.pharmacy3jmobileapp.R;
 
 public class SettingsActivity extends AppCompatActivity {
 
-    String[] itemlist = {"Change Password"/*, "Change Account Info/Details"*/};
+    String[] itemlist = {"Change Password", "My Orders", "Logout"/*, "Change Account Info/Details"*/};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,7 +30,16 @@ public class SettingsActivity extends AppCompatActivity {
                }
                break;
                case 1 : {
-                   startActivity(new Intent(getApplicationContext(), AccountActivity.class));
+                   SharedPreferences sharedPref = getSharedPreferences("sp", MODE_PRIVATE);
+                   String customerName = sharedPref.getString("customerName", "");
+                   Intent intent = new Intent(getApplicationContext(), DeliveryActivity.class);
+                   intent.putExtra("customerName", customerName);
+                   startActivity(intent);
+               }
+               break;
+               case 2 : {
+                   FirebaseAuth.getInstance().signOut();
+                   startActivity(new Intent(getApplicationContext(), MainActivity.class));
                }
                break;
            }

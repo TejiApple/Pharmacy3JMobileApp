@@ -2,7 +2,9 @@ package com.project.pharmacy3jmobileapp.ui.adapter;
 
 import static android.content.Context.MODE_PRIVATE;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,8 +15,10 @@ import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.project.pharmacy3jmobileapp.R;
 import com.project.pharmacy3jmobileapp.model.ProductsModel;
 import com.project.pharmacy3jmobileapp.model.OrderDetails;
@@ -78,8 +82,32 @@ public class CartProductDetailsListAdapter extends BaseAdapter {
             tvTotalAmount = convertView.findViewById(R.id.tvTotalAmount);
 
             removeItem.setOnClickListener(v -> {
-                productsModel.remove(position);
-                notifyDataSetChanged();
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(context)
+                        .setTitle("Remove item")
+                        .setMessage("Are you sure you want to remove this item?")
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                productsModel.remove(position);
+                                Gson gson = new Gson();
+                                String newProductList = gson.toJson(productsModel);
+                                JSONArray newProductsArray;
+                                try {
+                                    newProductsArray = new JSONArray(newProductList);
+                                } catch (JSONException e) {
+                                    throw new RuntimeException(e);
+                                }
+
+//                productsArray.put(productsModel);
+
+                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                editor.putString("productDetails", newProductsArray.toString());
+                                editor.apply();
+                                notifyDataSetChanged();
+                            }
+                        })
+                        .setNegativeButton("No", null);
+                alertDialog.show();
             });
 
             DecimalFormat df = new DecimalFormat("#,###.00");
@@ -91,13 +119,14 @@ public class CartProductDetailsListAdapter extends BaseAdapter {
             if (fromWhatScreen.equals("CartActivity")){
                 cbSelectItem.setVisibility(View.VISIBLE);
                 tvTotalAmount.setText(formattedPrice);
-                tvQuantity.setText("1");
+                tvQuantity.setText(String.valueOf(productsModel.get(position).getQuantity()));
             } else if (fromWhatScreen.equals("CheckoutActivity")) {
                 cbSelectItem.setVisibility(View.GONE);
                 String formattedTotalAmount = "Php " + df.format(Double.parseDouble(productsModel.get(position).getTotalAmount()));
                 tvTotalAmount.setText(formattedTotalAmount);
                 tvQuantity.setText(String.valueOf(productsModel.get(position).getQuantity()));
-                orderDetails.cartTotalAmount(productsModel.get(position).getTotalAmount(), productsModel.get(position).getQuantity(), 1, productsModel.get(position).getPosition());
+                total = Double.parseDouble(productsModel.get(position).getTotalAmount()) * Double.parseDouble(String.valueOf(productsModel.get(position).getQuantity()));
+                orderDetails.cartTotalAmount(String.valueOf(total), productsModel.get(position).getQuantity(), 1, productsModel.get(position).getPosition());
 
             }
             Picasso.get().load(productsModel.get(position).getImageUrl()).into(imageView);
@@ -108,6 +137,8 @@ public class CartProductDetailsListAdapter extends BaseAdapter {
             AtomicInteger quantity = new AtomicInteger(Integer.parseInt(tvQuantity.getText().toString()));
             AtomicInteger selectedItem = new AtomicInteger();
 
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+
             btnAdd.setOnClickListener(v -> {
                 quantity.getAndIncrement();
                 tvQuantity.setText(quantity.toString());
@@ -115,13 +146,40 @@ public class CartProductDetailsListAdapter extends BaseAdapter {
                 total = Double.parseDouble(price) * Double.parseDouble(String.valueOf(quantity));
                 String totalAmt = df.format(total);
                 tvTotalAmount.setText("Php " + totalAmt);
-                if (cbSelectItem.isChecked()){
+                if (fromWhatScreen.equals("CartActivity")){
+                    if (cbSelectItem.isChecked()){
+                        selectedItem.set(1);
+                        orderDetails.cartTotalAmount(totalAmt, quantity.get(), selectedItem.get(), position);
+                    } else {
+                        selectedItem.set(0);
+                        orderDetails.cartTotalAmount("0.00", 0, selectedItem.get(), position);
+                    }
+                } else {
                     selectedItem.set(1);
                     orderDetails.cartTotalAmount(totalAmt, quantity.get(), selectedItem.get(), position);
-                } else {
-                    selectedItem.set(0);
-                    orderDetails.cartTotalAmount("0.00", 0, selectedItem.get(), position);
+                    JSONArray buyNowArray = new JSONArray();
+                    sharedPreferences = context.getSharedPreferences("sp", MODE_PRIVATE);
+
+                    String buyNow = sharedPreferences.getString("buyNow", "");
+                    if (!buyNow.isEmpty()){
+                        sharedPreferences.edit().remove("buyNow").apply();
+                    }
+
+                    Gson gson = new Gson();
+                    JSONObject buyNowObj;
+                    try {
+                        buyNowObj = new JSONObject(gson.toJson(productsModel.get(position)));
+                        buyNowObj.put("position", position);
+                        buyNowObj.put("quantity", quantity.get());
+                        buyNowObj.put("totalAmount", totalAmt);
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                    buyNowArray.put(buyNowObj);
+                    editor.putString("buyNow", buyNowArray.toString());
+                    editor.apply();
                 }
+
 
             });
 
@@ -136,18 +194,23 @@ public class CartProductDetailsListAdapter extends BaseAdapter {
                     String totalAmt = df.format(total - Double.parseDouble(price));
                     total = Double.parseDouble(totalAmt);
                     tvTotalAmount.setText("Php " + totalAmt);
-                    if (cbSelectItem.isChecked()){
+                    if (fromWhatScreen.equals("CartActivity")){
+                        if (cbSelectItem.isChecked()){
+                            selectedItem.set(1);
+                            orderDetails.cartTotalAmount(totalAmt, quantity.get(), selectedItem.get(), position);
+                        } else {
+                            selectedItem.set(0);
+                            orderDetails.cartTotalAmount("0.00", 0, selectedItem.get(), position);
+                        }
+                    } else {
                         selectedItem.set(1);
                         orderDetails.cartTotalAmount(totalAmt, quantity.get(), selectedItem.get(), position);
-                    } else {
-                        selectedItem.set(0);
-                        orderDetails.cartTotalAmount("0.00", 0, selectedItem.get(), position);
                     }
+
                 }
             });
 
 
-            SharedPreferences.Editor editor = sharedPreferences.edit();
             cbSelectItem.setOnClickListener(v -> {
                 if (cbSelectItem.isChecked()) {
                     selectedItem.set(1);

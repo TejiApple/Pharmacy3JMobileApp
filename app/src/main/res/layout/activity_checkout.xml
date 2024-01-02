@@ -75,17 +75,22 @@
             android:text="Mode of Payment"
             android:textStyle="bold"/>
 
-<!--        <RadioButton-->
-<!--            android:id="@+id/rdBtnGcash"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="G-Cash" />-->
+        <RadioGroup
+            android:id="@+id/rgPaymentMethods"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <RadioButton
+                android:id="@+id/rdBtnGcash"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="G-Cash" />
 
-        <RadioButton
-            android:id="@+id/rdBtnCashOnDelivery"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Cash on Delivery" />
+            <RadioButton
+                android:id="@+id/rdBtnCashOnDelivery"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Cash on Delivery" />
+        </RadioGroup>
 
     </LinearLayout>
 

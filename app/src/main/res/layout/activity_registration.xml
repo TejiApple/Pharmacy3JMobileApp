@@ -60,6 +60,7 @@
         android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@id/etSeniorCitizenId"
         android:hint="City/Municipality"
+        android:text="Tanza"
         android:inputType="text"
         android:gravity="center"
         android:background="@drawable/rectangle_rounded_edittext"/>
@@ -71,6 +72,7 @@
         android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@id/etCityMunicipality"
         android:hint="Barangay"
+        android:text="Punta 1"
         android:inputType="text"
         android:gravity="center"
         android:background="@drawable/rectangle_rounded_edittext"/>

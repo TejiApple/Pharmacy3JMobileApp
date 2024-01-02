@@ -26,17 +26,20 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.project.pharmacy3jmobileapp.R;
 import com.project.pharmacy3jmobileapp.model.ProductsModel;
+import com.project.pharmacy3jmobileapp.model.RegistrationModel;
 import com.project.pharmacy3jmobileapp.ui.adapter.HomepageGridViewAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class HomepageActivity extends AppCompatActivity {
 
     DatabaseReference dbRef;
     ArrayList<ProductsModel> productsModelArrayList;
+    ArrayList<RegistrationModel> registrationModelArrayList;
     BaseAdapter baseAdapter;
     HomepageGridViewAdapter productsAdapter;
     GridView gridView;
@@ -44,6 +47,7 @@ public class HomepageActivity extends AppCompatActivity {
     TextView tvUsername, tvProductsOnCart;
     ImageButton btnHealthCare, btnPersonalCare, btnBeautyCare, btnBabyAndKids, btnCart, btnSettings;
     EditText etSearchProducts;
+    SharedPreferences sp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +65,7 @@ public class HomepageActivity extends AppCompatActivity {
         btnSettings = findViewById(R.id.ibSettings);
         etSearchProducts = findViewById(R.id.etSearchProducts);
 
-        SharedPreferences sp = getSharedPreferences("sp", MODE_PRIVATE);
+        sp = getSharedPreferences("sp", MODE_PRIVATE);
         username = sp.getString("username", "");
         tvUsername.setText("Hello, " + username);
         String productsOnCart = sp.getString("productDetails", "");
@@ -74,7 +78,22 @@ public class HomepageActivity extends AppCompatActivity {
             }
 
         }
-        displayHealthCareProducts();
+        retrieveData();
+
+        if (getIntent().getExtras().get("fromWhatTab") != null){
+            String fromWhatTab = getIntent().getExtras().getString("fromWhatTab");
+            if (fromWhatTab.equals("Personal Care")){
+                displayPersonalCareProducts();
+            } else if (fromWhatTab.equals("Beauty Care")) {
+                displayBeautyCareProducts();
+            } else if (fromWhatTab.equals("Baby & Kids")) {
+                displayBabyAndKidsProducts();
+            } else {
+                displayHealthCareProducts();
+            }
+        } else {
+            displayHealthCareProducts();
+        }
 
         btnHealthCare.setOnClickListener(v -> displayHealthCareProducts());
         btnPersonalCare.setOnClickListener(v -> displayPersonalCareProducts());
@@ -189,9 +208,17 @@ public class HomepageActivity extends AppCompatActivity {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         Intent intent = new Intent(getApplicationContext(), ProductDetailsActivity.class);
-                        intent.putExtra("brandName",productsModelArrayList.get(position).getBrandName());
-                        intent.putExtra("description", productsModelArrayList.get(position).getDescription());
-                        intent.putExtra("price", productsModelArrayList.get(position).getPrice());
+                        String objectFromArray = "";
+                        try {
+                            Gson gson = new Gson();
+                            String productModelAsString = gson.toJson(productsModelArrayList);
+                            JSONArray jsonArray = new JSONArray(productModelAsString);
+                            objectFromArray = jsonArray.get(position).toString();
+                        } catch (JSONException e){
+                            Toast.makeText(HomepageActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+
+                        intent.putExtra("productModel", objectFromArray);
                         intent.putExtra("category", "Personal Care");
                         startActivity(intent);
                     }
@@ -223,9 +250,17 @@ public class HomepageActivity extends AppCompatActivity {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         Intent intent = new Intent(getApplicationContext(), ProductDetailsActivity.class);
-                        intent.putExtra("brandName",productsModelArrayList.get(position).getBrandName());
-                        intent.putExtra("description", productsModelArrayList.get(position).getDescription());
-                        intent.putExtra("price", productsModelArrayList.get(position).getPrice());
+                        String objectFromArray = "";
+                        try {
+                            Gson gson = new Gson();
+                            String productModelAsString = gson.toJson(productsModelArrayList);
+                            JSONArray jsonArray = new JSONArray(productModelAsString);
+                            objectFromArray = jsonArray.get(position).toString();
+                        } catch (JSONException e){
+                            Toast.makeText(HomepageActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+
+                        intent.putExtra("productModel", objectFromArray);
                         intent.putExtra("category", "Beauty Care");
                         startActivity(intent);
                     }
@@ -257,9 +292,17 @@ public class HomepageActivity extends AppCompatActivity {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         Intent intent = new Intent(getApplicationContext(), ProductDetailsActivity.class);
-                        intent.putExtra("brandName",productsModelArrayList.get(position).getBrandName());
-                        intent.putExtra("description", productsModelArrayList.get(position).getDescription());
-                        intent.putExtra("price", productsModelArrayList.get(position).getPrice());
+                        String objectFromArray = "";
+                        try {
+                            Gson gson = new Gson();
+                            String productModelAsString = gson.toJson(productsModelArrayList);
+                            JSONArray jsonArray = new JSONArray(productModelAsString);
+                            objectFromArray = jsonArray.get(position).toString();
+                        } catch (JSONException e){
+                            Toast.makeText(HomepageActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+
+                        intent.putExtra("productModel", objectFromArray);
                         intent.putExtra("category", "Baby & Kids");
                         startActivity(intent);
                     }
@@ -271,6 +314,46 @@ public class HomepageActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void retrieveData(){
+        dbRef = FirebaseDatabase.getInstance().getReference();
+        registrationModelArrayList = new ArrayList<>();
+        dbRef.child("users").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot dataSnapshot : snapshot.getChildren()){
+//                        String completeName = Objects.requireNonNull(dataSnapshot.child("completeName").getValue()).toString();
+                    String key = dataSnapshot.getKey();
+                    dbRef.child("users").child(key).orderByChild("usernameReg").equalTo(username).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            for (DataSnapshot dataSnapshot1 : snapshot.getChildren()){
+                                RegistrationModel registrationModel = dataSnapshot1.getValue(RegistrationModel.class);
+                                registrationModelArrayList.add(registrationModel);
+
+                                String customerName = registrationModelArrayList.get(0).getCompleteName();
+                                SharedPreferences.Editor editor = sp.edit();
+                                editor.putString("customerName", customerName);
+                                editor.apply();
+                            }
+
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
     }
 
 }
