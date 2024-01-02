@@ -168,7 +168,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
 //                    }
 //                }
 
-                Intent intent = new Intent(getApplicationContext(), HomepageActivity.class);
+                Intent intent = new Intent(getApplicationContext(), CartActivity.class);
                 intent.putExtra("fromWhatTab", category);
                 startActivity(intent);
             } catch (JSONException e) {
