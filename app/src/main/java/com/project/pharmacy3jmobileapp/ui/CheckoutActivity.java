@@ -44,7 +44,8 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class CheckoutActivity extends AppCompatActivity implements OrderDetails {
-    String productDetails, itemName, username, fullName, address, fromBuyNow;
+    String productDetails, itemName, username, fullName, address;
+    String fromBuyNow = null;
     EditText etGcashNumber;
     Dialog dialog;
     Double initialAmount;
@@ -73,8 +74,7 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
         username = sp.getString("username", "");
         String selectedProducts = sp.getString("selectedItems", "");
         String productsOnBuyNow = sp.getString("buyNow", "");
-        fromBuyNow = Objects.requireNonNull(getIntent().getExtras()).getString("fromBuyNow");
-        assert fromBuyNow != null;
+        fromBuyNow = getIntent().getExtras().getString("fromBuyNow");
         if (fromBuyNow.isEmpty()){
             if (!selectedProducts.isEmpty()){
                 try {
@@ -412,7 +412,7 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
             String totalAmountFromCart = getIntent().getExtras().getString("totalAmount");
 //            DecimalFormat df = new DecimalFormat("#,##0.00");
 
-            tvTotalAmount.setText(totalAmountFromCart);
+            tvTotalAmount.setText("Php " + totalAmountFromCart);
 //            initialAmount = Double.parseDouble(String.valueOf(finalTotalAmt));
 //            itemQuantity = quantity;
         } catch (Exception e){

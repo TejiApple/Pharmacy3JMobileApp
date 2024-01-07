@@ -145,6 +145,8 @@ public class CartActivity extends AppCompatActivity implements OrderDetails {
                 intent.putExtra("totalAmount", formattedAmount);
                 intent.putExtra("itemQuantity", itemQuantity);
                 intent.putExtra("itemPositionList", itemPositionList);
+                intent.putExtra("fromBuyNow", "");
+
                 startActivity(intent);
             } else {
                 Toast.makeText(this, "Please select an item to checkout", Toast.LENGTH_SHORT).show();
