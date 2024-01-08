@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,15 +40,16 @@ public class CartProductDetailsListAdapter extends BaseAdapter {
 
     private OrderDetails orderDetails;
     private SharedPreferences sharedPreferences;
-    private String fromWhatScreen;
+    private String fromWhatScreen, fromWhatButton;
     double total;
 
-    public CartProductDetailsListAdapter(Context context, ArrayList<ProductsModel> productsModel, OrderDetails orderDetails, SharedPreferences sharedPref, String fromWhatScreen) {
+    public CartProductDetailsListAdapter(Context context, ArrayList<ProductsModel> productsModel, OrderDetails orderDetails, SharedPreferences sharedPref, String fromWhatScreen, String fromWhatButton) {
         this.context = context;
         this.productsModel = productsModel;
         this.orderDetails = orderDetails;
         this.sharedPreferences = sharedPref;
         this.fromWhatScreen = fromWhatScreen;
+        this.fromWhatButton = fromWhatButton;
     }
 
     @Override
@@ -125,19 +127,29 @@ public class CartProductDetailsListAdapter extends BaseAdapter {
                 tvQuantity.setText(String.valueOf(productsModel.get(position).getQuantity()));
             } else if (fromWhatScreen.equals("CheckoutActivity")) {
                 cbSelectItem.setVisibility(View.GONE);
-                btnAdd.setVisibility(View.GONE);
-                btnSubtract.setVisibility(View.GONE);
-                String formattedTotalAmount = "Php " + df.format(Double.parseDouble(productsModel.get(position).getTotalAmount()));
-                tvTotalAmount.setText(formattedTotalAmount);
-                tvQuantity.setText(String.valueOf(productsModel.get(position).getQuantity()));
-                total = Double.parseDouble(productsModel.get(position).getTotalAmount()) * Double.parseDouble(String.valueOf(productsModel.get(position).getQuantity()));
-                orderDetails.cartTotalAmount(String.valueOf(total), productsModel.get(position).getQuantity(), 1, productsModel.get(position).getPosition());
+                if (fromWhatButton.equals("fromBuyNow")){
+                    btnAdd.setVisibility(View.VISIBLE);
+                    btnSubtract.setVisibility(View.VISIBLE);
+                    tvTotalAmount.setText(formattedPrice);
+                    tvQuantity.setText(String.valueOf(productsModel.get(position).getQuantity()));
+                } else {
+                    btnAdd.setVisibility(View.GONE);
+                    btnSubtract.setVisibility(View.GONE);
+                    String formattedTotalAmount = "Php " + df.format(Double.parseDouble(productsModel.get(position).getTotalAmount()));
+                    tvTotalAmount.setText(formattedTotalAmount);
+                    tvQuantity.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+                    tvQuantity.setText(productsModel.get(position).getQuantity() + " pc(s).");
+                    total = Double.parseDouble(productsModel.get(position).getTotalAmount()) * Double.parseDouble(String.valueOf(productsModel.get(position).getQuantity()));
+                    orderDetails.cartTotalAmount(String.valueOf(total), productsModel.get(position).getQuantity(), 1, productsModel.get(position).getPosition(), fromWhatButton);
+                }
+//
+
 
             }
             Picasso.get().load(productsModel.get(position).getImageUrl()).into(imageView);
 
 
-            AtomicInteger quantity = new AtomicInteger(Integer.parseInt(tvQuantity.getText().toString()));
+            AtomicInteger quantity = new AtomicInteger(Integer.parseInt(tvQuantity.getText().toString().replace(" pc(s).", "")));
             AtomicInteger selectedItem = new AtomicInteger();
 
             SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -195,14 +207,14 @@ public class CartProductDetailsListAdapter extends BaseAdapter {
                         editor.putString("selectedItems", jsonArray.toString());
                         editor.apply();
 
-                        orderDetails.cartTotalAmount(totalAmt, quantity.get(), selectedItem.get(), position);
+                        orderDetails.cartTotalAmount(totalAmt, quantity.get(), selectedItem.get(), position, fromWhatButton);
                     } else {
                         selectedItem.set(0);
-                        orderDetails.cartTotalAmount("0.00", 0, selectedItem.get(), position);
+                        orderDetails.cartTotalAmount("0.00", 0, selectedItem.get(), position, fromWhatButton);
                     }
                 } else {
                     selectedItem.set(1);
-                    orderDetails.cartTotalAmount(totalAmt, quantity.get(), selectedItem.get(), position);
+                    orderDetails.cartTotalAmount(totalAmt, quantity.get(), selectedItem.get(), position, fromWhatButton);
                     JSONArray buyNowArray = new JSONArray();
                     sharedPreferences = context.getSharedPreferences("sp", MODE_PRIVATE);
 
@@ -286,14 +298,14 @@ public class CartProductDetailsListAdapter extends BaseAdapter {
                             editor.putString("selectedItems", jsonArray.toString());
                             editor.apply();
 
-                            orderDetails.cartTotalAmount(totalAmt, quantity.get(), selectedItem.get(), position);
+                            orderDetails.cartTotalAmount(totalAmt, quantity.get(), selectedItem.get(), position, fromWhatButton);
                         } else {
                             selectedItem.set(0);
-                            orderDetails.cartTotalAmount("0.00", 0, selectedItem.get(), position);
+                            orderDetails.cartTotalAmount("0.00", 0, selectedItem.get(), position, fromWhatButton);
                         }
                     } else {
                         selectedItem.set(1);
-                        orderDetails.cartTotalAmount(totalAmt, quantity.get(), selectedItem.get(), position);
+                        orderDetails.cartTotalAmount(totalAmt, quantity.get(), selectedItem.get(), position, fromWhatButton);
                     }
 
                 }
@@ -310,7 +322,7 @@ public class CartProductDetailsListAdapter extends BaseAdapter {
                     } else {
                         totalAmt = df.format(total);
                     }
-                    orderDetails.cartTotalAmount(totalAmt, quantity.get(), selectedItem.get(), position);
+                    orderDetails.cartTotalAmount(totalAmt, quantity.get(), selectedItem.get(), position, fromWhatButton);
                     sharedPreferences = context.getSharedPreferences("sp", MODE_PRIVATE);
 
                     JSONArray jsonArray = new JSONArray();
@@ -339,7 +351,7 @@ public class CartProductDetailsListAdapter extends BaseAdapter {
                     editor.apply();
                 } else {
                     selectedItem.set(0);
-                    orderDetails.cartTotalAmount("0.00", 0, selectedItem.get(), position);
+                    orderDetails.cartTotalAmount("0.00", 0, selectedItem.get(), position, fromWhatButton);
                     String selectedItems = sharedPreferences.getString("selectedItems", "");
 //                    sharedPreferences.edit().remove("selectedItems").apply();
                     try {

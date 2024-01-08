@@ -132,7 +132,7 @@ public class CartActivity extends AppCompatActivity implements OrderDetails {
     }
 
     private void showProductsInTheCart() {
-        cartProductDetailsListAdapter = new CartProductDetailsListAdapter(CartActivity.this, productsModelArrayList, this, sp, "CartActivity");
+        cartProductDetailsListAdapter = new CartProductDetailsListAdapter(CartActivity.this, productsModelArrayList, this, sp, "CartActivity", "");
         lvProductInTheCart.setAdapter(cartProductDetailsListAdapter);
     }
 
@@ -256,7 +256,7 @@ public class CartActivity extends AppCompatActivity implements OrderDetails {
     }
 
     @Override
-    public void cartTotalAmount(String totalAmount, int quantity, int selectedItem, int position) {
+    public void cartTotalAmount(String totalAmount, int quantity, int selectedItem, int position, String fromWhatButton) {
         try {
             double finalTotalAmt = 0.00;
             if (selectedItem == 1){

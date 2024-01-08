@@ -111,8 +111,10 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
                         productsOnBuyNowObj = productsOnBuyNowArray.getJSONObject(i);
                         if (productsOnBuyNowObj.has("totalAmount")){
                             productsOnBuyNowObj.put("totalAmount", productsOnBuyNowObj.getString("totalAmount"));
+                            initialAmount = Double.valueOf(productsOnBuyNowObj.getString("totalAmount"));
                         } else {
                             productsOnBuyNowObj.put("totalAmount", productsOnBuyNowObj.getString("price"));
+                            initialAmount = Double.valueOf(productsOnBuyNowObj.getString("price"));
                         }
                         Gson gson = new Gson();
                         ProductsModel productsInTheCart = gson.fromJson(String.valueOf(productsOnBuyNowObj), ProductsModel.class);
@@ -138,6 +140,7 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
         tvCustAddress = findViewById(R.id.tvCustAddress);
         rdBtnGcash = findViewById(R.id.rdBtnGcash);
         rdBtnCod = findViewById(R.id.rdBtnCashOnDelivery);
+        tvTotalAmount.setText("Php " + initialAmount + "0");
 
 //        initialAmount = Double.parseDouble(df.format(productsModelArrayList.get(0).getPrice()));
 //        String formattedPrice = "Php " + df.format(productsModelArrayList.get(0).getPrice());
@@ -199,7 +202,7 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
 
     }
     private void showProductsInTheCart() {
-        cartProductDetailsListAdapter = new CartProductDetailsListAdapter(CheckoutActivity.this, productsModelArrayList, this, sp, "CheckoutActivity");
+        cartProductDetailsListAdapter = new CartProductDetailsListAdapter(CheckoutActivity.this, productsModelArrayList, this, sp, "CheckoutActivity", fromBuyNow);
         lvProductInTheCart.setAdapter(cartProductDetailsListAdapter);
     }
 
@@ -236,9 +239,13 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
                                     productsOnBuyNowObj.put("totalAmount", productsOnBuyNowObj.getString("price"));
                                 }
                                 amountForBuyNow = productsOnBuyNowObj.getString("totalAmount");
+                                itemQuantity = productsOnBuyNowObj.getInt("quantity");
                                 Gson gson = new Gson();
                                 ProductsModel productsInTheCart = gson.fromJson(String.valueOf(productsOnBuyNowObj), ProductsModel.class);
                                 productsModelArrayList.add(productsInTheCart);
+                            }
+                            if (!amountForBuyNow.isEmpty()){
+                                initialAmount = Double.parseDouble(amountForBuyNow);
                             }
 
                         } catch (JSONException e) {
@@ -247,14 +254,7 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
                     }
 
                 }
-                if (!amountForBuyNow.isEmpty()){
-                    initialAmount = Double.parseDouble(amountForBuyNow);
-                }
 
-                if (registrationModelArrayList.get(0).getSeniorCitizenId().length() > 0){
-                    discount = 0.8;
-                    totalPay = initialAmount * discount;
-                }
 
                 int unitPrice = 0;
 
@@ -277,6 +277,15 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
                 for (int i = 0; i < productsModelArrayList.size(); i++){
                     itemName = productsModelArrayList.get(i).getBrandName();
                     unitPrice = productsModelArrayList.get(i).getPrice();
+                    itemQuantity = productsModelArrayList.get(i).getQuantity();
+                    initialAmount = Double.valueOf(productsModelArrayList.get(i).getTotalAmount());
+                    if (registrationModelArrayList.get(0).getSeniorCitizenId().length() > 0){
+                        discount = 0.8;
+                        totalPay = initialAmount * discount;
+                    } else {
+                        totalPay = initialAmount;
+                    }
+
                     ordersModels = new OrdersModel(initialAmount.toString(), contactNumber, "", date, discount, fullName,
                             itemName, randomItemNumber, "Door-to-door", paymentMode.get(), "Sample Prescription", randomProductId, itemQuantity,
                             address, "Pending", totalPay, unitPrice);
@@ -366,10 +375,18 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
                                 RegistrationModel registrationModel = dataSnapshot1.getValue(RegistrationModel.class);
                                 registrationModelArrayList.add(registrationModel);
 
-                                String city = registrationModelArrayList.get(0).getCityMunicipality();
-                                String barangay = registrationModelArrayList.get(0).getBarangay();
-                                String houseNo = registrationModelArrayList.get(0).getHouseNo();
-                                address = houseNo + ", " + barangay + ", " + city;
+                                try {
+                                    String city = registrationModelArrayList.get(0).getCityMunicipality();
+                                    String barangay = registrationModelArrayList.get(0).getBarangay();
+                                    String houseNo = registrationModelArrayList.get(0).getHouseNo();
+                                    if (city == null && !houseNo.isEmpty()){
+                                        address = houseNo + ", " + barangay;
+                                    } else if (houseNo == null || houseNo.isEmpty() && !barangay.isEmpty()){
+                                        address = barangay;
+                                    }
+                                } catch (Exception e){
+                                    Toast.makeText(CheckoutActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
                                 tvCustAddress.setText(address);
                             }
 
@@ -393,28 +410,54 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
 
     private void cancelCheckout(){
         btnCancel.setOnClickListener(v -> {
-            startActivity(new Intent(getApplicationContext(), CartActivity.class));
+            if (fromBuyNow.isEmpty()){
+                startActivity(new Intent(getApplicationContext(), CartActivity.class));
+            } else {
+                sp.edit().remove("buyNow").apply();
+                Intent intent = new Intent(getApplicationContext(), HomepageActivity.class);
+                intent.putExtra("fromWhatTab", "Checkout");
+                startActivity(intent);
+            }
         });
     }
+
     @Override
-    public void cartTotalAmount(String totalAmount, int quantity, int selectedItem, int position) {
+    public void onBackPressed() {
+        if (fromBuyNow.isEmpty()){
+            startActivity(new Intent(getApplicationContext(), CartActivity.class));
+        } else {
+            sp.edit().remove("buyNow").apply();
+            String productDetails = getIntent().getExtras().getString("productModel");
+            String category = getIntent().getExtras().getString("category");
+            Intent intent = new Intent(getApplicationContext(), ProductDetailsActivity.class);
+            intent.putExtra("productModel", productDetails);
+            intent.putExtra("category", category);
+            startActivity(intent);
+            finish();
+        }
+    }
+
+    @Override
+    public void cartTotalAmount(String totalAmount, int quantity, int selectedItem, int position, String fromWhatButton) {
         try {
             double finalTotalAmt = 0.00;
-//            if (selectedItem == 1){
-////                itemsSubtotal.put(position, totalAmount);
-////                for (String subtotal : itemsSubtotal.values()){
-//                    finalTotalAmt += Double.parseDouble(totalAmount);
-////                }
-//                System.out.println("TOTAL AMOUNT : " + finalTotalAmt);
-//            } else {
-//                itemsSubtotal.remove(position);
-//            }
+
             String totalAmountFromCart = getIntent().getExtras().getString("totalAmount");
 //            DecimalFormat df = new DecimalFormat("#,##0.00");
 
-            tvTotalAmount.setText("Php " + totalAmountFromCart);
-//            initialAmount = Double.parseDouble(String.valueOf(finalTotalAmt));
-//            itemQuantity = quantity;
+            if (fromWhatButton.equals("fromBuyNow")){
+                if (selectedItem == 1){
+                    itemsSubtotal.put(position, totalAmount);
+                    for (String subtotal : itemsSubtotal.values()) {
+                        finalTotalAmt += Double.parseDouble(subtotal);
+                    }
+                } else {
+                    itemsSubtotal.remove(position);
+                }
+                tvTotalAmount.setText("Php " + finalTotalAmt + "0");
+            } else {
+                tvTotalAmount.setText("Php " + totalAmountFromCart);
+            }
         } catch (Exception e){
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
         }

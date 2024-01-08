@@ -212,7 +212,11 @@ public class ProductDetailsActivity extends AppCompatActivity {
                 editor.apply();
                 Intent intent = new Intent(getApplicationContext(), CheckoutActivity.class);
                 intent.putExtra("fromBuyNow", "fromBuyNow");
+                intent.putExtra("totalAmount", productDetailsObj.getString("price") + ".00");
+                intent.putExtra("productModel", productDetails);
+                intent.putExtra("category", category);
                 startActivity(intent);
+                finish();
             } catch (JSONException e) {
                 Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
