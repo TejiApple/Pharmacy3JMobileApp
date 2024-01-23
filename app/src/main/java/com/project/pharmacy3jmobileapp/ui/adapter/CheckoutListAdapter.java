@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,13 +17,11 @@ import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.project.pharmacy3jmobileapp.R;
-import com.project.pharmacy3jmobileapp.model.ProductsModel;
 import com.project.pharmacy3jmobileapp.model.OrderDetails;
+import com.project.pharmacy3jmobileapp.model.ProductsModel;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -31,10 +30,9 @@ import org.json.JSONObject;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class CartProductDetailsListAdapter extends BaseAdapter {
+public class CheckoutListAdapter extends BaseAdapter{
     Context context;
     private ArrayList<ProductsModel> productsModel;
 
@@ -43,7 +41,7 @@ public class CartProductDetailsListAdapter extends BaseAdapter {
     private String fromWhatScreen, fromWhatButton;
     double total;
 
-    public CartProductDetailsListAdapter(Context context, ArrayList<ProductsModel> productsModel, OrderDetails orderDetails, SharedPreferences sharedPref, String fromWhatScreen, String fromWhatButton) {
+    public CheckoutListAdapter(Context context, ArrayList<ProductsModel> productsModel, OrderDetails orderDetails, SharedPreferences sharedPref, String fromWhatScreen, String fromWhatButton) {
         this.context = context;
         this.productsModel = productsModel;
         this.orderDetails = orderDetails;
@@ -142,7 +140,7 @@ public class CartProductDetailsListAdapter extends BaseAdapter {
                     tvQuantity.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
                     tvQuantity.setText(productsModel.get(position).getQuantity() + " pc(s).");
                     total = Double.parseDouble(totalAmountFromModel.replace(",", ""));
-                    orderDetails.cartTotalAmount(totalAmountFromModel.replace(",",""), defaultQuantity, 1, productsModel.get(position).getPosition(), fromWhatButton);
+//                    orderDetails.cartTotalAmount(totalAmountFromModel.replace(",", ""), defaultQuantity, 1, productsModel.get(position).getPosition(), fromWhatButton);
                 }
 //
 
@@ -156,6 +154,7 @@ public class CartProductDetailsListAdapter extends BaseAdapter {
 
             SharedPreferences.Editor editor = sharedPreferences.edit();
             int itemStocks = productsModel.get(position).getQuantity();
+
             btnAdd.setOnClickListener(v -> {
                 if (quantity.get() < itemStocks){
                     quantity.getAndIncrement();
@@ -163,7 +162,6 @@ public class CartProductDetailsListAdapter extends BaseAdapter {
                 } else if (quantity.get() >= itemStocks){
                     tvQuantity.setText(quantity.toString());
                 }
-
 
                 total = Double.parseDouble(price) * Double.parseDouble(String.valueOf(quantity));
                 String totalAmt = df.format(total);
@@ -319,65 +317,65 @@ public class CartProductDetailsListAdapter extends BaseAdapter {
             });
 
 
-            cbSelectItem.setOnClickListener(v -> {
-                if (cbSelectItem.isChecked()) {
-                    selectedItem.set(1);
-                    String totalAmt;
-                    if (quantity.get() == 1) {
-                        total = Double.parseDouble(price);
-                        totalAmt = df.format(total);
-                    } else {
-                        totalAmt = df.format(total);
-                    }
-                    orderDetails.cartTotalAmount(totalAmt, quantity.get(), selectedItem.get(), position, fromWhatButton);
-                    sharedPreferences = context.getSharedPreferences("sp", MODE_PRIVATE);
-
-                    JSONArray jsonArray = new JSONArray();
-                    String selectedItems = sharedPreferences.getString("selectedItems", "");
-                    if (!selectedItems.isEmpty()){
-                        try {
-                            jsonArray = new JSONArray(selectedItems);
-                        } catch (JSONException e){
-                            e.getMessage();
-                        }
-                    }
-
-                    Gson gson = new Gson();
-
-                    JSONObject jsonObj = null;
-                    try {
-                        jsonObj = new JSONObject(gson.toJson(productsModel.get(position)));
-                        jsonObj.put("position", position);
-                        jsonObj.put("quantity", quantity.get());
-                        jsonObj.put("totalAmount", totalAmt);
-                    } catch (JSONException e) {
-                        e.getMessage();
-                    }
-                    jsonArray.put(jsonObj);
-                    editor.putString("selectedItems", jsonArray.toString());
-                    editor.apply();
-                } else {
-                    selectedItem.set(0);
-                    orderDetails.cartTotalAmount("0.00", 0, selectedItem.get(), position, fromWhatButton);
-                    String selectedItems = sharedPreferences.getString("selectedItems", "");
-//                    sharedPreferences.edit().remove("selectedItems").apply();
-                    try {
-                        JSONArray jsonArray2 = new JSONArray(selectedItems);
-                        for (int i = 0; i < jsonArray2.length(); i++){
-                            JSONObject jsonObject = jsonArray2.getJSONObject(i);
-                            int itemPosition = jsonObject.getInt("position");
-                            if (itemPosition == position){
-                                jsonArray2.remove(i);
-                                editor.putString("selectedItems", jsonArray2.toString());
-                                editor.apply();
-                            }
-                        }
-
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-            });
+//            cbSelectItem.setOnClickListener(v -> {
+//                if (cbSelectItem.isChecked()) {
+//                    selectedItem.set(1);
+//                    String totalAmt;
+//                    if (quantity.get() == 1) {
+//                        total = Double.parseDouble(price);
+//                        totalAmt = df.format(total);
+//                    } else {
+//                        totalAmt = df.format(total);
+//                    }
+//                    orderDetails.cartTotalAmount(totalAmt, quantity.get(), selectedItem.get(), position, fromWhatButton);
+//                    sharedPreferences = context.getSharedPreferences("sp", MODE_PRIVATE);
+//
+//                    JSONArray jsonArray = new JSONArray();
+//                    String selectedItems = sharedPreferences.getString("selectedItems", "");
+//                    if (!selectedItems.isEmpty()){
+//                        try {
+//                            jsonArray = new JSONArray(selectedItems);
+//                        } catch (JSONException e){
+//                            e.getMessage();
+//                        }
+//                    }
+//
+//                    Gson gson = new Gson();
+//
+//                    JSONObject jsonObj = null;
+//                    try {
+//                        jsonObj = new JSONObject(gson.toJson(productsModel.get(position)));
+//                        jsonObj.put("position", position);
+//                        jsonObj.put("quantity", quantity.get());
+//                        jsonObj.put("totalAmount", totalAmt);
+//                    } catch (JSONException e) {
+//                        e.getMessage();
+//                    }
+//                    jsonArray.put(jsonObj);
+//                    editor.putString("selectedItems", jsonArray.toString());
+//                    editor.apply();
+//                } else {
+//                    selectedItem.set(0);
+//                    orderDetails.cartTotalAmount("0.00", 0, selectedItem.get(), position, fromWhatButton);
+//                    String selectedItems = sharedPreferences.getString("selectedItems", "");
+////                    sharedPreferences.edit().remove("selectedItems").apply();
+//                    try {
+//                        JSONArray jsonArray2 = new JSONArray(selectedItems);
+//                        for (int i = 0; i < jsonArray2.length(); i++){
+//                            JSONObject jsonObject = jsonArray2.getJSONObject(i);
+//                            int itemPosition = jsonObject.getInt("position");
+//                            if (itemPosition == position){
+//                                jsonArray2.remove(i);
+//                                editor.putString("selectedItems", jsonArray2.toString());
+//                                editor.apply();
+//                            }
+//                        }
+//
+//                    } catch (JSONException e) {
+//                        throw new RuntimeException(e);
+//                    }
+//                }
+//            });
 
         } catch (Exception e){
             e.getMessage();

@@ -1,6 +1,8 @@
 package com.project.pharmacy3jmobileapp.ui.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,17 +50,18 @@ public class DeliveryDetailsAdapter extends BaseAdapter {
                 LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 convertView = inflater.inflate(R.layout.listview_delivery, null, true);
             }
-            TextView tvOrderNumber, tvOrderDate, tvOrderItems, tvOrderItemPrice, tvOrderTotalAmount, tvOverallTotal;
+            TextView tvOrderNumber, tvOrderDate, tvOrderItems, tvOrderItemPrice, tvOrderTotalAmount, tvOverallTotal, tvOrderStatus;
             tvOrderNumber = convertView.findViewById(R.id.tvDeliveryOrderNumber);
             tvOrderDate = convertView.findViewById(R.id.tvOrderDate);
             tvOrderItems = convertView.findViewById(R.id.tvOrderItems);
             tvOrderItemPrice = convertView.findViewById(R.id.tvOrderItemPrice);
             tvOrderTotalAmount = convertView.findViewById(R.id.tvOrderTotalAmount);
             tvOverallTotal = convertView.findViewById(R.id.tvOverallTotal);
+            tvOrderStatus = convertView.findViewById(R.id.tvOrderStatus);
 
-            tvOrderNumber.setText("Order No. " + String.valueOf(ordersModelArrayList.get(position).getItemNumber()));
+            tvOrderNumber.setText("Order No. " + ordersModelArrayList.get(position).getItemNumber());
             tvOrderDate.setText(ordersModelArrayList.get(position).getDateOrder());
-            tvOrderItems.setText(String.valueOf(ordersModelArrayList.get(position).getQuantity()) + " - " + ordersModelArrayList.get(position).getItemName());
+            tvOrderItems.setText(ordersModelArrayList.get(position).getQuantity() + " - " + ordersModelArrayList.get(position).getItemName());
 
             DecimalFormat df = new DecimalFormat("#,###.00");
             String formattedPrice = "Php " + df.format(ordersModelArrayList.get(position).getUnitPrice());
@@ -67,6 +70,19 @@ public class DeliveryDetailsAdapter extends BaseAdapter {
             String formattedTotalPay = "Php " + df.format(ordersModelArrayList.get(position).getTotalPay());
             tvOrderTotalAmount.setText("Total \n" + formattedTotalPay);
             tvOverallTotal.setText(formattedTotalPay);
+
+            String orderStatus = ordersModelArrayList.get(position).getStatus();
+            if (orderStatus.equals("Pending")){
+                tvOrderStatus.setText(orderStatus);
+            } else if (orderStatus.equals("Delivered")){
+                tvOrderStatus.setText(orderStatus);
+                tvOrderStatus.setTextColor(Color.parseColor("#25ba0b"));
+                tvOrderStatus.setBackgroundResource(R.drawable.rectangle_green_border);
+            } else {
+                tvOrderStatus.setText(orderStatus);
+                tvOrderStatus.setTextColor(Color.parseColor("#13548A"));
+                tvOrderStatus.setBackgroundResource(R.drawable.rectangle_blue_border);
+            }
         } catch (Exception e){
             e.getMessage();
         }

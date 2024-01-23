@@ -60,20 +60,12 @@
                 android:layout_height="200dp"
                 android:layout_gravity="center"/>
 
-            <TextView
-                android:id="@+id/tvItemPrice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="Php 0.00"
-                android:textSize="24sp"
-                android:textStyle="bold"/>
 
             <TextView
                 android:id="@+id/tvItemBrandName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Sample Text"
+                android:text="Sample Brand Name"
                 android:textSize="16sp"
                 android:textStyle="bold"/>
 
@@ -81,7 +73,22 @@
                 android:id="@+id/tvItemGenericName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Sample Text"
+                android:text="Sample Generic Name"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/tvItemPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Php 0.00"
+                android:textSize="16sp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/tvItemQuantity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Strock: "
                 android:textSize="16sp" />
 
             <TextView

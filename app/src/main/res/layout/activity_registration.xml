@@ -25,7 +25,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@id/etCompleteName"
-        android:hint="Mobile Phone"
+        android:hint="Mobile/Phone Number"
         android:inputType="phone"
         android:gravity="center"
         android:background="@drawable/rectangle_rounded_edittext"/>
@@ -83,7 +83,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@id/etBarangay"
-        android:hint="House No., St. and/or Purok"
+        android:hint="House No., Street, and/or Purok"
         android:inputType="text"
         android:gravity="center"
         android:background="@drawable/rectangle_rounded_edittext"/>

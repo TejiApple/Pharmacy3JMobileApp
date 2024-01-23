@@ -26,6 +26,14 @@ public class RegistrationModel {
     private String usernameReg;
     private String passwordReg;
 
+    public RegistrationModel(String updatedCompleteName, String updatedMobilePhone, String updatedBirthdate, String updatedSeniorCitizenId, String updatedHouseNo) {
+        this.completeName = updatedCompleteName;
+        this.mobilePhone = updatedMobilePhone;
+        this.birthdate = updatedBirthdate;
+        this.seniorCitizenId = updatedSeniorCitizenId;
+        this.houseNo = updatedHouseNo;
+    }
+
     public String getCompleteName() {
         return completeName;
     }

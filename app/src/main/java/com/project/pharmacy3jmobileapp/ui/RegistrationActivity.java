@@ -114,6 +114,18 @@ public class RegistrationActivity extends AppCompatActivity {
 
         }
 
+        if (TextUtils.isEmpty(mobilePhone)){
+            etMobilePhone.setError("Mobile/Phone number is required");
+            progressBar.setVisibility(View.GONE);
+            return;
+        }
+
+        if (TextUtils.isEmpty(houseNo)){
+            etHouseNo.setError("House No., Street, and/or Purok is required");
+            progressBar.setVisibility(View.GONE);
+            return;
+        }
+
         if (TextUtils.isEmpty(cityMunicipality)){
             etCityMunicipality.setError("City/Municipality is required");
             progressBar.setVisibility(View.GONE);
@@ -151,7 +163,7 @@ public class RegistrationActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()){
-                    dbRef.child("users").push().child(completeName).setValue(registrationModel);
+                    dbRef.child("users").push().child(username).setValue(registrationModel);
                     Toast.makeText(RegistrationActivity.this, "User created!", Toast.LENGTH_SHORT).show();
                     progressBar.setVisibility(View.GONE);
                     startActivity(new Intent(getApplicationContext(), MainActivity.class));

@@ -139,11 +139,7 @@ public class CartActivity extends AppCompatActivity implements OrderDetails {
     private void proceedToCheckout() {
         btnProceedToCheckout.setOnClickListener(v -> {
             if (currentItemSelected > 0){
-                String amount = tvTotalAmount.getText().toString();
                 Intent intent = new Intent(getApplicationContext(), CheckoutActivity.class);
-                String formattedAmount = amount.replace("Php ", "");
-                intent.putExtra("totalAmount", formattedAmount);
-                intent.putExtra("itemQuantity", itemQuantity);
                 intent.putExtra("itemPositionList", itemPositionList);
                 intent.putExtra("fromBuyNow", "");
 
@@ -263,7 +259,7 @@ public class CartActivity extends AppCompatActivity implements OrderDetails {
                 itemPositionList.add(position);
                 itemsSubtotal.put(position, totalAmount);
                 for (String subtotal : itemsSubtotal.values()){
-                    finalTotalAmt += Double.parseDouble(subtotal);
+                    finalTotalAmt += Double.parseDouble(subtotal.replace(",", ""));
                 }
             } else {
                 itemPositionList.remove(Integer.valueOf(position));

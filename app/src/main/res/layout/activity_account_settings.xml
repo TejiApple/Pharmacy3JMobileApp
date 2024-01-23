@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context=".ui.AccountSettingsActivity">
+
+    <TextView
+        android:id="@+id/tvEditInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:text="EDIT INFO"
+        android:textColor="#13548A"
+        android:textSize="16sp"
+        android:layout_gravity="end"/>
+
+    <EditText
+        android:id="@+id/etAccountCompleteName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="Complete Name"
+        android:textColor="@color/black"
+        android:inputType="text"
+        android:gravity="center"
+        android:enabled="false"
+        android:background="@drawable/rectangle_rounded_edittext"/>
+
+    <EditText
+        android:id="@+id/etAccountMobilePhone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="Mobile/Phone Number"
+        android:textColor="@color/black"
+        android:inputType="phone"
+        android:gravity="center"
+        android:enabled="false"
+        android:background="@drawable/rectangle_rounded_edittext"/>
+
+    <EditText
+        android:id="@+id/etAccountBirthdate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="Birthdate (MM/DD/YYYY)"
+        android:textColor="@color/black"
+        android:inputType="date"
+        android:gravity="center"
+        android:focusable="false"
+        android:enabled="false"
+        android:background="@drawable/rectangle_rounded_edittext"/>
+
+    <EditText
+        android:id="@+id/etAccountSeniorCitizenId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="Senior Citizen ID No."
+        android:textColor="@color/black"
+        android:inputType="text"
+        android:gravity="center"
+        android:enabled="false"
+        android:background="@drawable/rectangle_rounded_edittext"/>
+
+    <EditText
+        android:id="@+id/etAccountHouseNo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:hint="House No., Street, and/or Purok"
+        android:textColor="@color/black"
+        android:inputType="text"
+        android:gravity="center"
+        android:enabled="false"
+        android:background="@drawable/rectangle_rounded_edittext"/>
+
+    <Button
+        android:id="@+id/btnSubmitUpdate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:padding="8dp"
+        android:backgroundTint="#13548A"
+        android:textColor="@color/white"
+        android:text="Submit"
+        android:visibility="gone"/>
+
+    <Button
+        android:id="@+id/btnCancelUpdate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:backgroundTint="#566C7D"
+        android:text="Cancel"
+        android:textColor="@color/white"
+        android:visibility="gone"/>
+</LinearLayout>

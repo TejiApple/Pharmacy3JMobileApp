@@ -52,7 +52,7 @@ public class HomepageGridViewAdapter extends BaseAdapter {
 
             String price = String.valueOf(productsModel.get(position).getPrice());
             tvBrandName.setText(productsModel.get(position).getBrandName());
-            tvPrice.setText(price);
+            tvPrice.setText("Php " + price);
 //            imageView.setImageResource(R.drawable.icon_beauty_care);
             Picasso.get().load(productsModel.get(position).getImageUrl()).into(imageView);
         } catch (Exception e){

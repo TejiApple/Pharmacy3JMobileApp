@@ -14,7 +14,7 @@ import com.project.pharmacy3jmobileapp.R;
 
 public class SettingsActivity extends AppCompatActivity {
 
-    String[] itemlist = {"Change Password", "My Orders", "Logout"/*, "Change Account Info/Details"*/};
+    String[] itemlist = {"Account Settings", "Change Password", "My Orders", "Logout"};
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,10 +26,14 @@ public class SettingsActivity extends AppCompatActivity {
         lvSettings.setOnItemClickListener((parent, view, position, id) -> {
            switch (position) {
                case 0 : {
-                   startActivity(new Intent(getApplicationContext(), ChangePasswordActivity.class));
+                   startActivity(new Intent(getApplicationContext(), AccountSettingsActivity.class));
                }
                break;
                case 1 : {
+                   startActivity(new Intent(getApplicationContext(), ChangePasswordActivity.class));
+               }
+               break;
+               case 2 : {
                    SharedPreferences sharedPref = getSharedPreferences("sp", MODE_PRIVATE);
                    String customerName = sharedPref.getString("customerName", "");
                    Intent intent = new Intent(getApplicationContext(), DeliveryActivity.class);
@@ -37,7 +41,7 @@ public class SettingsActivity extends AppCompatActivity {
                    startActivity(intent);
                }
                break;
-               case 2 : {
+               case 3 : {
                    FirebaseAuth.getInstance().signOut();
                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
                }

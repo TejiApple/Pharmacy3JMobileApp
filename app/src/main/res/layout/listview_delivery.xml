@@ -25,6 +25,16 @@
         android:text="Order Date: January 1, 2023"/>
 
     <TextView
+        android:id="@+id/tvOrderStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="8dp"
+        android:text="Pending"
+        android:textColor="#b8ab00"
+        android:background="@drawable/rectangle_yellow_border"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+    <TextView
         android:id="@+id/tvOrderItems"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

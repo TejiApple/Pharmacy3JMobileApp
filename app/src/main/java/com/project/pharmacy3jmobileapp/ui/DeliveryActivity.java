@@ -58,18 +58,15 @@ public class DeliveryActivity extends AppCompatActivity {
     }
 
     private void retrievedCustomerOrders(String customerName) {
-        dbRef.child("orders").addListenerForSingleValueEvent(new ValueEventListener() {
+        dbRef.child("orders").orderByChild("fullName").equalTo(customerName).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot dataSnapshot : snapshot.getChildren()){
-//                        String completeName = Objects.requireNonNull(dataSnapshot.child("completeName").getValue()).toString();
                     OrdersModel ordersModel = dataSnapshot.getValue(OrdersModel.class);
                     assert ordersModel != null;
-                    if (ordersModel.getFullName().equals(customerName)){
-                        if (ordersModel.getDateDelivered().isEmpty()){
-                            ordersModelArrayList.add(ordersModel);
-                            showCustomerDeliveryDetails();
-                        }
+                    ordersModelArrayList.add(ordersModel);
+                    if (ordersModel.getDateDelivered().isEmpty()){
+                        showCustomerDeliveryDetails();
                     }
                 }
             }

@@ -33,8 +33,8 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class ProductDetailsActivity extends AppCompatActivity {
-    String brandName, description, price, productDetails, genericName, category, imageUrl;
-    TextView tvProductName, tvDescription, tvPrice, tvItemBrandName, tvItemPrice, tvItemGenericName, tvItemDesc, tvItemCategory;
+    String brandName, description, price, productDetails, genericName, category, imageUrl, quantity;
+    TextView tvProductName, tvDescription, tvPrice, tvItemBrandName, tvItemPrice, tvItemGenericName, tvItemDesc, tvItemCategory, tvItemQuantity;
     ImageView ivProduct;
     Button btnAddToCart, btnBuyNow;
 
@@ -61,6 +61,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
                 genericName = "";
             }
             imageUrl = productDetailsObj.getString("imageUrl");
+            quantity = productDetailsObj.getString("quantity");
 
         } catch (JSONException e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -81,6 +82,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
         tvItemGenericName = findViewById(R.id.tvItemGenericName);
         tvItemDesc = findViewById(R.id.tvItemDesc);
         tvItemCategory = findViewById(R.id.tvItemCategory);
+        tvItemQuantity = findViewById(R.id.tvItemQuantity);
 
         ivProduct = findViewById(R.id.ivProductImg);
         Picasso.get().load(imageUrl).into(ivProduct);
@@ -90,6 +92,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
         DecimalFormat df = new DecimalFormat("#,###.00");
         String formattedPrice = "Php " + df.format(Integer.parseInt(price));
         tvPrice.setText(formattedPrice);
+        tvItemQuantity.setText("Stock: " + quantity);
 
         tvItemBrandName.setText(brandName);
         tvItemPrice.setText(formattedPrice);
@@ -122,7 +125,19 @@ public class ProductDetailsActivity extends AppCompatActivity {
             }
         }
 
+        JSONObject forSuggestionObj = new JSONObject();
+        JSONArray forSuggestionArr = new JSONArray();
+        String suggestionItems = sharedPref.getString("suggestionItems", "");
+        if (!suggestionItems.isEmpty()){
+            try {
+                forSuggestionArr = new JSONArray(suggestionItems);
+            } catch (JSONException e){
+                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        }
+
         JSONArray finalProductsArray = productsArray;
+        JSONArray finalForSuggestionArr = forSuggestionArr;
         btnAddToCart.setOnClickListener(v -> {
 //            Intent intent = new Intent(getApplicationContext(), CartActivity.class);
 //            intent.putExtra("productDetails", productDetails);
@@ -146,11 +161,19 @@ public class ProductDetailsActivity extends AppCompatActivity {
 //                    }
 //                }
                 JsonArray jsonArr = new Gson().fromJson(productsOnCart, JsonArray.class);
+                JsonArray jsonArr2 = new Gson().fromJson(suggestionItems, JsonArray.class);
                     if (hasValue(jsonArr, productName)){
                         Toast.makeText(this, "This item is already in the cart!", Toast.LENGTH_SHORT).show();
                     } else {
+                        if (!hasSuggestion(jsonArr2, category)){
+                            forSuggestionObj.put("suggestionCategory", category);
+                            forSuggestionObj.put("suggestionItemName", productName);
+                            finalForSuggestionArr.put(forSuggestionObj);
+                        }
+
                         finalProductsArray.put(productDetailsObj);
                         editor.putString("productDetails", finalProductsArray.toString());
+                        editor.putString("suggestionItems", finalForSuggestionArr.toString());
                         editor.apply();
                         Toast.makeText(this, "Item added to cart successfully!", Toast.LENGTH_SHORT).show();
                     }
@@ -189,6 +212,19 @@ public class ProductDetailsActivity extends AppCompatActivity {
         return false;
     }
 
+    private boolean hasSuggestion(JsonArray json, String value){
+        if (json != null){
+            for (int i = 0; i < json.size(); i++){
+                if (json.get(i).getAsJsonObject().get("suggestionCategory").getAsString().equals(value)){
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+
     private void buyNow() {
         SharedPreferences sharedPref = getSharedPreferences("sp", MODE_PRIVATE);
         JSONArray productsArray = new JSONArray();
@@ -208,6 +244,15 @@ public class ProductDetailsActivity extends AppCompatActivity {
             try {
                 JSONObject productDetailsObj = new JSONObject(productDetails);
                 productsArray.put(productDetailsObj);
+
+                String productName = productDetailsObj.getString("brandName");
+                JSONObject forSuggestionObj = new JSONObject();
+                forSuggestionObj.put("suggestionCategory", category);
+                forSuggestionObj.put("suggestionItemName", productName);
+                JSONArray forSuggestionArr = new JSONArray();
+                forSuggestionArr.put(forSuggestionObj);
+
+                editor.putString("suggestionItems", forSuggestionArr.toString());
                 editor.putString("buyNow", productsArray.toString());
                 editor.apply();
                 Intent intent = new Intent(getApplicationContext(), CheckoutActivity.class);
