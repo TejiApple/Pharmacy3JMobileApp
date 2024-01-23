@@ -74,6 +74,8 @@ public class DeliveryDetailsAdapter extends BaseAdapter {
             String orderStatus = ordersModelArrayList.get(position).getStatus();
             if (orderStatus.equals("Pending")){
                 tvOrderStatus.setText(orderStatus);
+                tvOrderStatus.setTextColor(Color.parseColor("#b8ab00"));
+                tvOrderStatus.setBackgroundResource(R.drawable.rectangle_yellow_border);
             } else if (orderStatus.equals("Delivered")){
                 tvOrderStatus.setText(orderStatus);
                 tvOrderStatus.setTextColor(Color.parseColor("#25ba0b"));

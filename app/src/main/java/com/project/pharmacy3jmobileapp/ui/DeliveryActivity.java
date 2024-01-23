@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ListView;
@@ -20,6 +21,8 @@ import com.project.pharmacy3jmobileapp.model.RegistrationModel;
 import com.project.pharmacy3jmobileapp.ui.adapter.DeliveryDetailsAdapter;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Objects;
 
 public class DeliveryActivity extends AppCompatActivity {
@@ -54,6 +57,7 @@ public class DeliveryActivity extends AppCompatActivity {
 
     private void showCustomerDeliveryDetails() {
         deliveryDetailsAdapter = new DeliveryDetailsAdapter(DeliveryActivity.this, ordersModelArrayList);
+        deliveryDetailsAdapter.notifyDataSetChanged();
         lvCustomerDeliveryDetails.setAdapter(deliveryDetailsAdapter);
     }
 
@@ -65,10 +69,10 @@ public class DeliveryActivity extends AppCompatActivity {
                     OrdersModel ordersModel = dataSnapshot.getValue(OrdersModel.class);
                     assert ordersModel != null;
                     ordersModelArrayList.add(ordersModel);
-                    if (ordersModel.getDateDelivered().isEmpty()){
-                        showCustomerDeliveryDetails();
-                    }
+                    showCustomerDeliveryDetails();
                 }
+                Collections.reverse(ordersModelArrayList);
+
             }
 
             @Override
