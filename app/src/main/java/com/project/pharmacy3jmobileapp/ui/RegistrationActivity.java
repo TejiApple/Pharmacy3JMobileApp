@@ -170,7 +170,7 @@ public class RegistrationActivity extends AppCompatActivity {
         }
 
         if (!TextUtils.isEmpty(seniorCitizenId)){
-            if (imageUri == null){
+            if (imageData.length == 0){
                 Toast.makeText(this, "Senior Citizen ID Photo is required", Toast.LENGTH_SHORT).show();
                 progressBar.setVisibility(View.GONE);
                 return;
@@ -228,7 +228,7 @@ public class RegistrationActivity extends AppCompatActivity {
                 if (task.isSuccessful()){
                     dbRef.child("users").push().child(username).setValue(registrationModel);
 
-                    if (imageData != null){
+                    if (imageData.length > 0){
                         fileName = "sc_id_" + etCompleteName.getText().toString() + ".jpg";
                         StorageReference storageReference = firebaseStorage.getReference().child("images").child(fileName);
                         UploadTask uploadTask = storageReference.putBytes(imageData);
