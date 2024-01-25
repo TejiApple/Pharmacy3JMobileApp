@@ -6,16 +6,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,6 +29,7 @@ import com.project.pharmacy3jmobileapp.model.OrdersModel;
 import com.project.pharmacy3jmobileapp.model.ProductsModel;
 import com.project.pharmacy3jmobileapp.model.RegistrationModel;
 import com.project.pharmacy3jmobileapp.ui.adapter.CartProductDetailsListAdapter;
+import com.project.pharmacy3jmobileapp.ui.adapter.CheckoutItemBreakdownAdapter;
 import com.project.pharmacy3jmobileapp.ui.adapter.CheckoutListAdapter;
 
 import org.json.JSONArray;
@@ -43,7 +41,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -55,13 +52,13 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
     Double initialAmount;
     String amountForBuyNow;
     Integer itemQuantity = 0;
-    ListView lvProductInTheCart;
+    ListView lvProductInTheCart, lvCheckoutItemBreakdown;
     Button btnProceedToOrders, btnCancel;
-    TextView tvTotalAmount, tvCustAddress, tvDiscountName, tvDiscountPercent;
-    RadioButton rdBtnGcash, rdBtnCod;
+    TextView tvTotalAmount, tvCustAddress, tvDiscountName, tvDiscountPercent, tvCod, tvPriceName, tvQuantityName;
     CartProductDetailsListAdapter cartProductDetailsListAdapter;
 
     CheckoutListAdapter checkoutListAdapter;
+    CheckoutItemBreakdownAdapter checkoutItemBreakdownAdapter;
     ArrayList<ProductsModel> productsModelArrayList;
     DatabaseReference dbRef;
 
@@ -79,6 +76,8 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
         tvDiscountName = findViewById(R.id.tvDiscountName);
         tvDiscountPercent = findViewById(R.id.tvDiscountPercent);
         tvTotalAmount = findViewById(R.id.tvCartTotalAmount);
+        tvPriceName = findViewById(R.id.tvPriceName);
+        tvQuantityName = findViewById(R.id.tvQuantityName);
 
         sp = getSharedPreferences("sp", MODE_PRIVATE);
         username = sp.getString("username", "");
@@ -174,11 +173,12 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
 
         //Setting up views
         lvProductInTheCart = findViewById(R.id.lvProductsToCheckout);
+        lvCheckoutItemBreakdown = findViewById(R.id.lvCheckoutItem);
         btnProceedToOrders = findViewById(R.id.btnProceedToOrders);
         btnCancel = findViewById(R.id.btnCancelCheckout);
         tvCustAddress = findViewById(R.id.tvCustAddress);
 //        rdBtnGcash = findViewById(R.id.rdBtnGcash);
-        rdBtnCod = findViewById(R.id.rdBtnCashOnDelivery);
+        tvCod = findViewById(R.id.tvCashOnDelivery);
 
 
 //        if (initialAmount >= 200 && initialAmount < 1000){
@@ -203,60 +203,23 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
         //Call functions
         retrieveData();
         showProductsInTheCart();
+        showProductBreakdown();
         proceedToCheckout();
         cancelCheckout();
 //        showGcashDialog();
     }
 
-    private void showGcashDialog(){
-        dialog = new Dialog(this);
-
-        rdBtnGcash.setOnClickListener(v1 -> {
-            try {
-                dialog.setContentView(R.layout.gcash_dialog);
-                etGcashNumber = dialog.findViewById(R.id.etGcashNumber);
-                Objects.requireNonNull(dialog.getWindow()).setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                dialog.setCancelable(false);
-                dialog.getWindow().getAttributes().windowAnimations = R.style.animation;
-
-                String gcashNumber = sp.getString("gcashNumber", "");
-
-                if (!gcashNumber.isEmpty()){
-                    etGcashNumber.setText(gcashNumber);
-                } else {
-                    etGcashNumber.setText("");
-                }
-
-                Button confirm = dialog.findViewById(R.id.btnGcashConfirm);
-                Button cancel = dialog.findViewById(R.id.btnGcashCancel);
-                SharedPreferences.Editor editor = sp.edit();
-                confirm.setOnClickListener(v2 -> {
-                    try {
-                        String gcash = etGcashNumber.getText().toString();
-                        if (etGcashNumber.getText().length() > 0){
-                            editor.putString("gcashNumber", gcash);
-                            editor.apply();
-                            dialog.dismiss();
-                        } else {
-                            Toast.makeText(this, "Account number is required!", Toast.LENGTH_SHORT).show();
-                        }
-                    } catch (Exception e){
-
-                    }
-
-                });
-                cancel.setOnClickListener(v2 -> dialog.dismiss());
-                dialog.show();
-            } catch (Exception e){
-                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-
-        });
-
-    }
     private void showProductsInTheCart() {
         checkoutListAdapter = new CheckoutListAdapter(CheckoutActivity.this, productsModelArrayList, this, sp, "CheckoutActivity", fromBuyNow);
         lvProductInTheCart.setAdapter(checkoutListAdapter);
+    }
+
+    private void showProductBreakdown() {
+        checkoutItemBreakdownAdapter = new CheckoutItemBreakdownAdapter(this, productsModelArrayList, this, sp, "CheckoutActivity", fromBuyNow);
+        tvPriceName.setVisibility(View.VISIBLE);
+        tvQuantityName.setVisibility(View.VISIBLE);
+        lvCheckoutItemBreakdown.setVisibility(View.VISIBLE);
+        lvCheckoutItemBreakdown.setAdapter(checkoutItemBreakdownAdapter);
     }
 
     private void proceedToCheckout() {
@@ -311,12 +274,7 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
 //                            if (rdBtnGcash.isChecked()){
 //                                paymentMode.set("Gcash");
 //                            } else
-                            if (rdBtnCod.isChecked()){
-                                paymentMode.set("Cash on delivery");
-                            } else {
-                                Toast.makeText(CheckoutActivity.this, "Payment mode is Required!", Toast.LENGTH_SHORT).show();
-                                return;
-                            }
+                            paymentMode.set("Cash on delivery");
 
                             int randomProductId = new Random().nextInt(10000);
                             int randomItemNumber = new Random().nextInt(10000);

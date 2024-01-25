@@ -92,7 +92,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
         DecimalFormat df = new DecimalFormat("#,###.00");
         String formattedPrice = "Php " + df.format(Integer.parseInt(price));
         tvPrice.setText(formattedPrice);
-        tvItemQuantity.setText("Stock: " + quantity);
+//        tvItemQuantity.setText("Stock: " + quantity);
 
         tvItemBrandName.setText(brandName);
         tvItemPrice.setText(formattedPrice);
