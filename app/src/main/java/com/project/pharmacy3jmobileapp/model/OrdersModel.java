@@ -6,7 +6,7 @@ public class OrdersModel {
 
     public OrdersModel(String amount, String contactNumber, String dateDelivered, String dateOrder, double discount, String fullName,
                        String itemName, int itemNumber, String deliveryMode, String paymentMode, String prescription, int productId,
-                       int quantity, String shipAddress, String status, double totalPay, double unitPrice) {
+                       int quantity, String shipAddress, String status, double totalPay, double unitPrice, String seniorCitizenId) {
         this.amount = amount;
         this.contactNumber = contactNumber;
         this.dateDelivered = dateDelivered;
@@ -24,6 +24,7 @@ public class OrdersModel {
         this.status = status;
         this.totalPay = totalPay;
         this.unitPrice = unitPrice;
+        this.seniorCitizenId = seniorCitizenId;
     }
 
     private String amount;
@@ -43,6 +44,16 @@ public class OrdersModel {
     private String status;
     private double totalPay;
     private double unitPrice;
+
+    private String seniorCitizenId;
+
+    public String getSeniorCitizenId() {
+        return seniorCitizenId;
+    }
+
+    public void setSeniorCitizenId(String seniorCitizenId) {
+        this.seniorCitizenId = seniorCitizenId;
+    }
 
     public String getAmount() {
         return amount;

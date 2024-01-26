@@ -45,7 +45,7 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class CheckoutActivity extends AppCompatActivity implements OrderDetails {
-    String productDetails, itemName, username, fullName, address;
+    String seniorCitizenId, itemName, username, fullName, address;
     String fromBuyNow = null;
     EditText etGcashNumber;
     Dialog dialog;
@@ -79,6 +79,11 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
         tvPriceName = findViewById(R.id.tvPriceName);
         tvQuantityName = findViewById(R.id.tvQuantityName);
 
+        dbRef = FirebaseDatabase.getInstance().getReference();
+
+        //Call functions
+        retrieveData();
+
         sp = getSharedPreferences("sp", MODE_PRIVATE);
         username = sp.getString("username", "");
         String selectedProducts = sp.getString("selectedItems", "");
@@ -111,30 +116,10 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
 
                     }
 
-                    double finalTotalAmt = 0.00;
-                    for (String subtotal : itemsSubtotal.values()) {
-                        finalTotalAmt += Double.parseDouble(subtotal.replace(",", ""));
-                    }
 
-                    if (finalTotalAmt >= 200 && finalTotalAmt < 1000){
-                        tvDiscountName.setVisibility(View.VISIBLE);
-                        tvDiscountPercent.setVisibility(View.VISIBLE);
-                        tvDiscountPercent.setText("5%");
-                        initialAmount = finalTotalAmt * 0.95;
-                        tvTotalAmount.setText("Php " + initialAmount + "0");
-                    } else if (finalTotalAmt > 1000) {
-                        tvDiscountName.setVisibility(View.VISIBLE);
-                        tvDiscountPercent.setVisibility(View.VISIBLE);
-                        tvDiscountPercent.setText("10%");
-                        initialAmount = finalTotalAmt * 0.9;
-                        tvTotalAmount.setText("Php " + initialAmount + "0");
-                    } else {
-                        tvDiscountName.setVisibility(View.GONE);
-                        tvDiscountPercent.setVisibility(View.GONE);
-                        tvDiscountPercent.setText("0%");
-                        initialAmount = finalTotalAmt;
-                        tvTotalAmount.setText("Php " + initialAmount + "0");
-                    }
+
+
+
 
                 } catch (JSONException e) {
                     Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -198,10 +183,7 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
 //        initialAmount = Double.parseDouble(df.format(productsModelArrayList.get(0).getPrice()));
 //        String formattedPrice = "Php " + df.format(productsModelArrayList.get(0).getPrice());
 //        tvTotalAmount.setText(formattedPrice);
-        dbRef = FirebaseDatabase.getInstance().getReference();
 
-        //Call functions
-        retrieveData();
         showProductsInTheCart();
         showProductBreakdown();
         proceedToCheckout();
@@ -285,17 +267,17 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
                                 itemName = productsModelArrayList.get(i).getBrandName();
                                 unitPrice = productsModelArrayList.get(i).getPrice();
                                 itemQuantity = productsModelArrayList.get(i).getQuantity();
-                                initialAmount = Double.valueOf(productsModelArrayList.get(i).getTotalAmount());
-                                if (registrationModelArrayList.get(0).getSeniorCitizenId().length() > 0){
-                                    discount = 0.8;
-                                    totalPay = initialAmount * discount;
-                                } else {
-                                    totalPay = initialAmount;
-                                }
+//                                initialAmount = Double.valueOf(productsModelArrayList.get(i).getTotalAmount());
+//                                if (registrationModelArrayList.get(0).getSeniorCitizenId().length() > 0){
+//                                    discount = 0.8;
+//                                    totalPay = initialAmount * discount;
+//                                } else {
+//                                }
+                                totalPay = initialAmount;
 
                                 ordersModels = new OrdersModel(initialAmount.toString(), contactNumber, "", date, discount, fullName,
                                         itemName, randomItemNumber, "Door-to-door", paymentMode.get(), "Sample Prescription", randomProductId, itemQuantity,
-                                        address, "Pending", totalPay, unitPrice);
+                                        address, "Pending", totalPay, unitPrice, seniorCitizenId);
 
                                 dbRef.child("orders").push().setValue(ordersModels);
                             }
@@ -375,10 +357,66 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
                                     String city = registrationModelArrayList.get(0).getCityMunicipality();
                                     String barangay = registrationModelArrayList.get(0).getBarangay();
                                     String houseNo = registrationModelArrayList.get(0).getHouseNo();
+
+                                    if (registrationModelArrayList.get(0).getSeniorCitizenId() != null){
+                                        seniorCitizenId = registrationModelArrayList.get(0).getSeniorCitizenId();
+                                    } else {
+                                        seniorCitizenId = "";
+                                    }
+
                                     if (city == null && !houseNo.isEmpty()){
                                         address = houseNo + ", " + barangay;
                                     } else if (houseNo == null || houseNo.isEmpty() && !barangay.isEmpty()){
                                         address = barangay;
+                                    }
+
+                                    double finalTotalAmt = 0.00;
+                                    for (String subtotal : itemsSubtotal.values()) {
+                                        finalTotalAmt += Double.parseDouble(subtotal.replace(",", ""));
+                                    }
+
+                                    DecimalFormat df = new DecimalFormat("#,##0.00");
+
+                                    if (!seniorCitizenId.isEmpty()){
+                                        if (finalTotalAmt >= 200 && finalTotalAmt < 1000){
+                                            tvDiscountName.setVisibility(View.VISIBLE);
+                                            tvDiscountPercent.setVisibility(View.VISIBLE);
+                                            tvDiscountPercent.setText("Senior Citizen 20% + 5%");
+                                            initialAmount = finalTotalAmt * 0.75;
+                                            tvTotalAmount.setText("Php " + df.format(initialAmount));
+                                        } else if (finalTotalAmt > 1000) {
+                                            tvDiscountName.setVisibility(View.VISIBLE);
+                                            tvDiscountPercent.setVisibility(View.VISIBLE);
+                                            tvDiscountPercent.setText("Senior Citizen 20% + 10%");
+                                            initialAmount = finalTotalAmt * 0.70;
+                                            tvTotalAmount.setText("Php " + df.format(initialAmount));
+                                        } else {
+                                            tvDiscountName.setVisibility(View.GONE);
+                                            tvDiscountPercent.setVisibility(View.GONE);
+                                            tvDiscountPercent.setText("0%");
+                                            initialAmount = finalTotalAmt * 0.80;
+                                            tvTotalAmount.setText("Php " + df.format(initialAmount));
+                                        }
+                                    } else {
+                                        if (finalTotalAmt >= 200 && finalTotalAmt < 1000){
+                                            tvDiscountName.setVisibility(View.VISIBLE);
+                                            tvDiscountPercent.setVisibility(View.VISIBLE);
+                                            tvDiscountPercent.setText("5%");
+                                            initialAmount = finalTotalAmt * 0.95;
+                                            tvTotalAmount.setText("Php " + df.format(initialAmount));
+                                        } else if (finalTotalAmt > 1000) {
+                                            tvDiscountName.setVisibility(View.VISIBLE);
+                                            tvDiscountPercent.setVisibility(View.VISIBLE);
+                                            tvDiscountPercent.setText("10%");
+                                            initialAmount = finalTotalAmt * 0.9;
+                                            tvTotalAmount.setText("Php " + df.format(initialAmount));
+                                        } else {
+                                            tvDiscountName.setVisibility(View.GONE);
+                                            tvDiscountPercent.setVisibility(View.GONE);
+                                            tvDiscountPercent.setText("0%");
+                                            initialAmount = finalTotalAmt;
+                                            tvTotalAmount.setText("Php " + df.format(initialAmount));
+                                        }
                                     }
                                 } catch (Exception e){
                                     Toast.makeText(CheckoutActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
