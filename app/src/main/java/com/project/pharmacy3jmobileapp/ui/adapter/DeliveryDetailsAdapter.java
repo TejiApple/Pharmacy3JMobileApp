@@ -51,7 +51,6 @@ public class DeliveryDetailsAdapter extends BaseAdapter {
                 convertView = inflater.inflate(R.layout.listview_delivery, null, true);
             }
             TextView tvOrderNumber, tvOrderDate, tvOrderItems, tvOrderItemPrice, tvOrderTotalAmount, tvOverallTotal, tvOrderStatus;
-            tvOrderNumber = convertView.findViewById(R.id.tvDeliveryOrderNumber);
             tvOrderDate = convertView.findViewById(R.id.tvOrderDate);
             tvOrderItems = convertView.findViewById(R.id.tvOrderItems);
             tvOrderItemPrice = convertView.findViewById(R.id.tvOrderItemPrice);
@@ -59,7 +58,6 @@ public class DeliveryDetailsAdapter extends BaseAdapter {
             tvOverallTotal = convertView.findViewById(R.id.tvOverallTotal);
             tvOrderStatus = convertView.findViewById(R.id.tvOrderStatus);
 
-            tvOrderNumber.setText("Order No. " + ordersModelArrayList.get(position).getItemNumber());
             tvOrderDate.setText(ordersModelArrayList.get(position).getDateOrder());
             tvOrderItems.setText(ordersModelArrayList.get(position).getQuantity() + " - " + ordersModelArrayList.get(position).getItemName());
 

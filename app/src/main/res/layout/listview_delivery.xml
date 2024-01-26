@@ -6,20 +6,12 @@
     android:background="#EFECEC"
     android:padding="16dp">
 
-    <TextView
-        android:id="@+id/tvDeliveryOrderNumber"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        android:textSize="16sp"
-        android:text="Order No. 12345"/>
 
     <TextView
         android:id="@+id/tvOrderDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/tvDeliveryOrderNumber"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:textSize="16sp"
         android:text="Order Date: January 1, 2023"/>
@@ -36,14 +28,15 @@
         app:layout_constraintEnd_toEndOf="parent"/>
     <TextView
         android:id="@+id/tvOrderItems"
-        android:layout_width="wrap_content"
+        android:layout_width="250dp"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toBottomOf="@id/tvOrderDate"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="16dp"
         android:textSize="16sp"
         android:textStyle="bold"
-        android:text="1 - Sample Product"/>
+        android:text="1 - Sample Product"
+        android:maxLines="3"/>
 
     <TextView
         android:id="@+id/tvOrderItemPrice"
