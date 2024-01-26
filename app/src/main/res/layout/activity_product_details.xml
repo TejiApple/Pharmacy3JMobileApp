@@ -24,27 +24,8 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 android:text="Sample Text"
-                android:textSize="16sp"
+                android:textSize="24sp"
                 android:textStyle="bold"/>
-
-            <TextView
-                android:id="@+id/tvProductDescription"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/tvProductName"
-                android:text="Sample Text"
-                android:textSize="16sp" />
-
-            <TextView
-                android:id="@+id/tvProductPrice"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:text="Sample Text"
-                android:textSize="16sp"
-                android:textStyle="bold" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -88,7 +69,7 @@
                 android:id="@+id/tvItemQuantity"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Strock: "
+                android:text="Stock: "
                 android:textSize="16sp" />
 
             <TextView

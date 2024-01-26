@@ -74,8 +74,6 @@ public class ProductDetailsActivity extends AppCompatActivity {
     @SuppressLint("SetTextI18n")
     private void showProductDetails(){
         tvProductName = findViewById(R.id.tvProductName);
-        tvDescription = findViewById(R.id.tvProductDescription);
-        tvPrice = findViewById(R.id.tvProductPrice);
 
         tvItemBrandName = findViewById(R.id.tvItemBrandName);
         tvItemPrice = findViewById(R.id.tvItemPrice);
@@ -88,10 +86,8 @@ public class ProductDetailsActivity extends AppCompatActivity {
         Picasso.get().load(imageUrl).into(ivProduct);
 
         tvProductName.setText(brandName);
-        tvDescription.setText(description);
         DecimalFormat df = new DecimalFormat("#,###.00");
         String formattedPrice = "Php " + df.format(Integer.parseInt(price));
-        tvPrice.setText(formattedPrice);
 //        tvItemQuantity.setText("Stock: " + quantity);
 
         tvItemBrandName.setText(brandName);
