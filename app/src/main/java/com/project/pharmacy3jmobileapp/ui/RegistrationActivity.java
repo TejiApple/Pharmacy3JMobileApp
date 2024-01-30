@@ -39,9 +39,14 @@ import com.project.pharmacy3jmobileapp.R;
 import com.project.pharmacy3jmobileapp.model.RegistrationModel;
 
 import java.io.ByteArrayOutputStream;
-import java.lang.ref.Cleaner;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.OffsetDateTime;
+import java.time.Period;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -59,7 +64,9 @@ public class RegistrationActivity extends AppCompatActivity {
     private Uri imageUri;
     Bitmap image;
     String fileName;
-    byte[] imageData;
+    byte[] imageData = null;
+
+    boolean isLegalAge;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +106,15 @@ public class RegistrationActivity extends AppCompatActivity {
                 myCalendar.set(Calendar.YEAR, year);
                 myCalendar.set(Calendar.MONTH,month);
                 myCalendar.set(Calendar.DAY_OF_MONTH,day);
+                try {
+                    isLegalAge = ageValidation(year, month, day);
+                    if (isLegalAge == false) {
+                        etBirthdate.setError("The user is not on legal age yet");
+                        Toast.makeText(RegistrationActivity.this, "The user is not on legal age yet", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (ParseException e) {
+                    throw new RuntimeException(e);
+                }
                 updateLabel();
             }
         };
@@ -143,6 +159,44 @@ public class RegistrationActivity extends AppCompatActivity {
         etBirthdate.setText(dateFormat.format(myCalendar.getTime()));
     }
 
+    private boolean ageValidation(int year, int month, int day) throws ParseException {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss O yyyy");
+
+            Date today = new Date();
+            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+            String dob = month + "/" + day + "/" + year;
+            Date completeDob = sdf.parse(dob);
+            String endDate = today.toString();
+            String startDate = completeDob.toString();
+
+            ZoneOffset zoneOffset = ZoneOffset.ofHours(6);
+
+            OffsetDateTime offsetStartDate = OffsetDateTime.parse(startDate, formatter).withOffsetSameLocal(zoneOffset);
+            OffsetDateTime offsetEndDate = OffsetDateTime.parse(endDate, formatter).withOffsetSameLocal(zoneOffset);
+
+            Period period = Period.between(offsetStartDate.toLocalDate(), offsetEndDate.toLocalDate());
+
+            if (period.getYears() < 18){
+                return false;
+            }
+        } else {
+            Date today = new Date();
+            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
+            String dob = month + "/" + day + "/" + year;
+            Date completeDob = sdf.parse(dob);
+//            Date completeToday = sdf.parse(today.toString());
+
+            assert completeDob != null;
+            long time_diff = today.getTime() - completeDob.getTime();
+            long years_difference = (time_diff / (1000L*60*60*24*365));
+
+            if (years_difference < 18){
+                return false;
+            }
+        }
+        return true;
+    }
     private void saveInputData() {
         progressBar.setVisibility(View.VISIBLE);
 
@@ -179,6 +233,10 @@ public class RegistrationActivity extends AppCompatActivity {
 
         if (TextUtils.isEmpty(mobilePhone)){
             etMobilePhone.setError("Mobile/Phone number is required");
+            progressBar.setVisibility(View.GONE);
+            return;
+        } else if (mobilePhone.length() > 0 && mobilePhone.length() < 11){
+            etMobilePhone.setError("Mobile/Phone number is invalid");
             progressBar.setVisibility(View.GONE);
             return;
         }
@@ -228,7 +286,12 @@ public class RegistrationActivity extends AppCompatActivity {
                 if (task.isSuccessful()){
                     dbRef.child("users").push().child(username).setValue(registrationModel);
 
-                    if (imageData.length > 0){
+                    if (imageData == null){
+                        Toast.makeText(RegistrationActivity.this, "User created!", Toast.LENGTH_SHORT).show();
+                        progressBar.setVisibility(View.GONE);
+                        startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                        finish();
+                    } else if (imageData.length > 0){
                         fileName = "sc_id_" + etCompleteName.getText().toString() + ".jpg";
                         StorageReference storageReference = firebaseStorage.getReference().child("images").child(fileName);
                         UploadTask uploadTask = storageReference.putBytes(imageData);
@@ -243,11 +306,6 @@ public class RegistrationActivity extends AppCompatActivity {
                                 progressBar.setVisibility(View.GONE);
                             }
                         });
-                    } else {
-                        Toast.makeText(RegistrationActivity.this, "User created!", Toast.LENGTH_SHORT).show();
-                        progressBar.setVisibility(View.GONE);
-                        startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                        finish();
                     }
                 } else {
                     Toast.makeText(RegistrationActivity.this, "Error : " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
