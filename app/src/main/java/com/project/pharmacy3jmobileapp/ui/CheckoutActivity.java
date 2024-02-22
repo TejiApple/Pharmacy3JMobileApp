@@ -273,7 +273,24 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
 //                                    totalPay = initialAmount * discount;
 //                                } else {
 //                                }
-                                totalPay = initialAmount;
+
+                                totalPay = unitPrice * itemQuantity;
+
+                                if (!seniorCitizenId.isEmpty()){
+                                    if (totalPay >= 200 && totalPay < 1000){
+                                        totalPay = totalPay * 0.75;
+                                    } else if (totalPay > 1000) {
+                                        totalPay = totalPay * 0.70;
+                                    } else {
+                                        totalPay = totalPay * 0.80;
+                                    }
+                                } else {
+                                    if (totalPay >= 200 && totalPay < 1000){
+                                        totalPay = totalPay * 0.95;
+                                    } else if (totalPay > 1000) {
+                                        totalPay = totalPay * 0.9;
+                                    }
+                                }
 
                                 ordersModels = new OrdersModel(initialAmount.toString(), contactNumber, "", date, discount, fullName,
                                         itemName, randomItemNumber, "Door-to-door", paymentMode.get(), "Sample Prescription", randomProductId, itemQuantity,
@@ -317,7 +334,7 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
                             intent.putExtra("customerName", fullName);
                             startActivity(intent);
                         } catch (Exception e) {
-//                              Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                              Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
 
                     })

@@ -1,10 +1,13 @@
 package com.project.pharmacy3jmobileapp.ui;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -24,9 +27,9 @@ import java.util.Objects;
 public class ChangePasswordActivity extends AppCompatActivity {
 
     EditText etUsername;
-    TextInputEditText etCurrentPassword, etNewPassword;
-    Button btnUpdateCreds;
-    String username, currentPassword, newPassword;
+    TextInputEditText etCurrentPassword, etNewPassword, etConfirmNewPassword;
+    Button btnUpdateCreds, btnCancelChangePassword;
+    String username, currentPassword, newPassword, confirmNewPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,44 +39,89 @@ public class ChangePasswordActivity extends AppCompatActivity {
         etUsername = findViewById(R.id.etUsernameUpdate);
         etCurrentPassword = findViewById(R.id.etCurrentPasswordUpdate);
         etNewPassword = findViewById(R.id.etNewPasswordUpdate);
+        etConfirmNewPassword = findViewById(R.id.etConfirmNewPasswordUpdate);
         btnUpdateCreds = findViewById(R.id.btnUpdateCreds);
+        btnCancelChangePassword = findViewById(R.id.btnCancelChangePassword);
 
         btnUpdateCreds.setOnClickListener(v -> {
             try {
                 username = etUsername.getText().toString() + "@gmail.com";
                 currentPassword = Objects.requireNonNull(etCurrentPassword.getText()).toString();
                 newPassword = Objects.requireNonNull(etNewPassword.getText()).toString();
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                AuthCredential credential = EmailAuthProvider.getCredential(username, currentPassword);
+                confirmNewPassword = Objects.requireNonNull(etConfirmNewPassword.getText()).toString();
 
-                if (!currentPassword.isEmpty() || !newPassword.isEmpty() || etUsername.getText().length() > 0){
-                    assert user != null;
-                    user.reauthenticate(credential).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()){
-                                user.updatePassword(newPassword).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if (task.isSuccessful()){
-                                            Toast.makeText(ChangePasswordActivity.this, "Password updated successfully", Toast.LENGTH_SHORT).show();
-                                            startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                                        } else {
-                                            Toast.makeText(ChangePasswordActivity.this, "Something went wrong in updating. Please try again later.", Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-                                });
-                            } else {
-                                Toast.makeText(ChangePasswordActivity.this, "Something went wrong. Please try again later.", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    });
-                } else {
-                    Toast.makeText(ChangePasswordActivity.this, "Missing required fields!", Toast.LENGTH_SHORT).show();
+                if (TextUtils.isEmpty(newPassword)){
+                    etNewPassword.setError("New password is required");
+                    return;
                 }
+
+                if (TextUtils.isEmpty(newPassword)){
+                    etNewPassword.setError("Confirm new password is required");
+                    return;
+                }
+
+                if (newPassword.equals(confirmNewPassword)){
+                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                    AuthCredential credential = EmailAuthProvider.getCredential(username, currentPassword);
+
+                    if (!currentPassword.isEmpty() || !newPassword.isEmpty() || etUsername.getText().length() > 0){
+                        assert user != null;
+                        user.reauthenticate(credential).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()){
+                                    user.updatePassword(newPassword).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()){
+                                                AlertDialog.Builder builder = new AlertDialog.Builder(ChangePasswordActivity.this);
+                                                builder.setTitle("Change Password...");
+                                                builder.setMessage("Password updated successfully!");
+                                                builder.setPositiveButton("OK", (dialog, which) -> {
+                                                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                                                });
+                                                AlertDialog dialog = builder.create();
+                                                dialog.show();
+                                            } else {
+                                                AlertDialog.Builder builder = new AlertDialog.Builder(ChangePasswordActivity.this);
+                                                builder.setTitle("Change Password...");
+                                                builder.setMessage("Something went wrong in updating. Please try again later.");
+                                                builder.setPositiveButton("OK", (dialog, which) -> {
+                                                    dialog.dismiss();
+                                                });
+                                                builder.create();
+                                                AlertDialog dialog = builder.create();
+                                                dialog.show();
+                                            }
+                                        }
+                                    });
+                                } else {
+                                    Toast.makeText(ChangePasswordActivity.this, "Something went wrong. Please try again later.", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+                    } else {
+                        Toast.makeText(ChangePasswordActivity.this, "Missing required fields!", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(ChangePasswordActivity.this);
+                    builder.setTitle("Change Password...");
+                    builder.setMessage("New password and confirm new password fields did not match.");
+                    builder.setPositiveButton("OK", (dialog, which) -> {
+                        dialog.dismiss();
+                    });
+                    builder.create();
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                }
+
             } catch (Exception e){
                 Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
+        });
+
+        btnCancelChangePassword.setOnClickListener(v -> {
+            onBackPressed();
         });
     }
 }

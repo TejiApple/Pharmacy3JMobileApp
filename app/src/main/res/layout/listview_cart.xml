@@ -28,7 +28,9 @@
         app:layout_constraintTop_toTopOf="parent"
         android:text="Sample Text"
         android:textSize="30sp"
-        android:textStyle="bold"/>
+        android:textStyle="bold"
+        android:maxLines="1"
+        android:ellipsize="end"/>
 
     <TextView
         android:id="@+id/tvProductPriceInTheCart"

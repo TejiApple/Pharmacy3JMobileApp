@@ -69,10 +69,9 @@ public class DeliveryActivity extends AppCompatActivity {
                     OrdersModel ordersModel = dataSnapshot.getValue(OrdersModel.class);
                     assert ordersModel != null;
                     ordersModelArrayList.add(ordersModel);
-                    showCustomerDeliveryDetails();
                 }
                 Collections.reverse(ordersModelArrayList);
-
+                showCustomerDeliveryDetails();
             }
 
             @Override

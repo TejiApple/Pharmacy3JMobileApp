@@ -10,6 +10,16 @@ public class ProductsModel {
     int quantity;
     String totalAmount;
 
+    String tags;
+
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
+    }
+
     public String getGenericName() {
         return genericName;
     }

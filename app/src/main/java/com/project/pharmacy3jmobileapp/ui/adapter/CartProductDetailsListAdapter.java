@@ -157,8 +157,12 @@ public class CartProductDetailsListAdapter extends BaseAdapter {
             SharedPreferences.Editor editor = sharedPreferences.edit();
             int itemStocks = productsModel.get(position).getQuantity();
             btnAdd.setOnClickListener(v -> {
-                quantity.getAndIncrement();
-                tvQuantity.setText(quantity.toString());
+                if (quantity.get() < itemStocks){
+                    quantity.getAndIncrement();
+                    tvQuantity.setText(quantity.toString());
+                } else if (quantity.get() >= itemStocks){
+                    tvQuantity.setText(quantity.toString());
+                }
 
                 total = Double.parseDouble(price) * Double.parseDouble(String.valueOf(quantity));
                 String totalAmt = df.format(total);

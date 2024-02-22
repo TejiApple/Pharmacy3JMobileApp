@@ -2,26 +2,24 @@ package com.project.pharmacy3jmobileapp.ui.adapter;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
-import android.widget.ImageButton;
-import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.project.pharmacy3jmobileapp.R;
 import com.project.pharmacy3jmobileapp.model.OrdersModel;
-import com.squareup.picasso.Picasso;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class DeliveryDetailsAdapter extends BaseAdapter {
     Context context;
     private ArrayList<OrdersModel> ordersModelArrayList;
+    ArrayList<String> orderArray = new ArrayList<>();
 
     public DeliveryDetailsAdapter(Context context, ArrayList<OrdersModel> ordersModelArrayList) {
         this.context = context;
@@ -58,7 +56,18 @@ public class DeliveryDetailsAdapter extends BaseAdapter {
             tvOverallTotal = convertView.findViewById(R.id.tvOverallTotal);
             tvOrderStatus = convertView.findViewById(R.id.tvOrderStatus);
 
-            tvOrderDate.setText(ordersModelArrayList.get(position).getDateOrder());
+            String date = ordersModelArrayList.get(0).getDateOrder();
+            tvOrderDate.setText(date);
+            if (position > 0){
+                if (date.equals(ordersModelArrayList.get(position).getDateOrder())){
+                    tvOrderDate.setVisibility(View.GONE);
+                } else {
+                    tvOrderDate.setText(ordersModelArrayList.get(position).getDateOrder());
+                }
+            } else if (position == 0) {
+                tvOrderDate.setVisibility(View.VISIBLE);
+
+            }
             tvOrderItems.setText(ordersModelArrayList.get(position).getQuantity() + " - " + ordersModelArrayList.get(position).getItemName());
 
             DecimalFormat df = new DecimalFormat("#,###.00");
