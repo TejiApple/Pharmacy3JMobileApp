@@ -52,7 +52,7 @@ public class DeliveryDetailsAdapter extends BaseAdapter {
             tvOrderDate = convertView.findViewById(R.id.tvOrderDate);
             tvOrderItems = convertView.findViewById(R.id.tvOrderItems);
             tvOrderItemPrice = convertView.findViewById(R.id.tvOrderItemPrice);
-            tvOrderTotalAmount = convertView.findViewById(R.id.tvOrderTotalAmount);
+//            tvOrderTotalAmount = convertView.findViewById(R.id.tvOrderTotalAmount);
             tvOverallTotal = convertView.findViewById(R.id.tvOverallTotal);
             tvOrderStatus = convertView.findViewById(R.id.tvOrderStatus);
 
@@ -75,7 +75,6 @@ public class DeliveryDetailsAdapter extends BaseAdapter {
             tvOrderItemPrice.setText(formattedPrice + " each.");
 
             String formattedTotalPay = "Php " + df.format(ordersModelArrayList.get(position).getTotalPay());
-            tvOrderTotalAmount.setText("Total \n" + formattedTotalPay);
             tvOverallTotal.setText(formattedTotalPay);
 
             String orderStatus = ordersModelArrayList.get(position).getStatus();

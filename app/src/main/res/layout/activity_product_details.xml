@@ -18,15 +18,25 @@
             android:background="#A6DEF5">
 
             <TextView
+                android:id="@+id/tvItemCategory"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Sample Text"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                tools:layout_editor_absoluteX="6dp" />
+
+            <TextView
                 android:id="@+id/tvProductName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
                 android:text="Sample Text"
-                android:textSize="24sp"
-                android:textStyle="bold"/>
-
+                android:textSize="12sp"
+                android:textStyle="normal"
+                app:layout_constraintTop_toBottomOf="@+id/tvItemCategory"
+                app:layout_constraintStart_toStartOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <LinearLayout
@@ -38,7 +48,7 @@
             <ImageView
                 android:id="@+id/ivProductImg"
                 android:layout_width="wrap_content"
-                android:layout_height="200dp"
+                android:layout_height="250dp"
                 android:layout_gravity="center"/>
 
 
@@ -46,9 +56,11 @@
                 android:id="@+id/tvItemBrandName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingTop="10dp"
                 android:text="Sample Brand Name"
+                android:textColor="#041D41"
                 android:textSize="16sp"
-                android:textStyle="bold"/>
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tvItemGenericName"
@@ -62,15 +74,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Php 0.00"
+                android:textColor="#C50404"
                 android:textSize="16sp"
-                android:textStyle="bold"/>
-
-            <TextView
-                android:id="@+id/tvItemQuantity"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Stock: "
-                android:textSize="16sp" />
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tvItemDesc"
@@ -81,13 +87,28 @@
                 android:textSize="16sp"/>
 
             <TextView
-                android:id="@+id/tvItemCategory"
+                android:id="@+id/textView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="Sample Text"
-                android:textSize="16sp"/>
+                android:paddingTop="10dp"
+                android:text="Daily Time Delivery:"
+                android:textColor="#D20303"
+                android:textSize="14sp"
+                android:textStyle="bold" />
 
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Morning: 8:00 - 10:00 am"
+                android:textColor="#CF0404" />
+
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Afternoon: 5:00 - 7:00 pm"
+                android:textColor="#CF0404" />
         </LinearLayout>
 
         <LinearLayout

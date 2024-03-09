@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="160dp"
+    android:layout_height="180dp"
     android:background="#EFECEC"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <CheckBox
         android:id="@+id/cbSelectItem"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="26dp"
+        android:layout_height="33dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>
@@ -16,18 +16,23 @@
     <ImageView
         android:id="@+id/ivProduct"
         android:layout_width="100dp"
-        android:layout_height="150dp"
+        android:layout_height="170dp"
         app:layout_constraintStart_toEndOf="@id/cbSelectItem"
         app:layout_constraintTop_toTopOf="parent"/>
 
     <TextView
         android:id="@+id/tvProductNameInTheCart"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="2dp"
         app:layout_constraintStart_toEndOf="@+id/ivProduct"
         app:layout_constraintTop_toTopOf="parent"
         android:text="Sample Text"
-        android:textSize="30sp"
+        android:textAlignment="viewStart"
+        android:textColor="#032F77"
+        android:textSize="17sp"
         android:textStyle="bold"
         android:maxLines="1"
         android:ellipsize="end"/>
@@ -36,10 +41,13 @@
         android:id="@+id/tvProductPriceInTheCart"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toEndOf="@+id/ivProduct"
-        app:layout_constraintTop_toBottomOf="@id/tvProductNameInTheCart"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:text="Sample Text"
-        android:textSize="16sp"/>
+        android:textColor="#980303"
+        android:textSize="14sp"
+        app:layout_constraintStart_toEndOf="@+id/ivProduct"
+        app:layout_constraintTop_toBottomOf="@id/tvProductNameInTheCart" />
 
     <LinearLayout
         android:id="@+id/llProductQuantity"
@@ -51,8 +59,8 @@
 
         <ImageButton
             android:id="@+id/btnDecreaseProductQuantity"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:src="@drawable/ic_subtract"
             android:backgroundTint="#13548A"
             app:layout_constraintStart_toEndOf="@+id/ivProduct"
@@ -60,16 +68,16 @@
 
         <TextView
             android:id="@+id/tvProductQuantity"
-            android:layout_width="80dp"
-            android:layout_height="50dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:text="1"
             android:textSize="24sp"
             android:gravity="center"/>
 
         <ImageButton
             android:id="@+id/btnIncreaseProductQuantity"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:src="@drawable/ic_add"
             android:backgroundTint="#13548A"
             app:layout_constraintStart_toEndOf="@+id/ivProduct"
@@ -79,10 +87,12 @@
 
     <Button
         android:id="@+id/btnRemoveProduct"
-        android:layout_width="40dp"
-        android:layout_height="50dp"
+        android:layout_width="38dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
         android:text="X"
-        android:textSize="16sp"
+        android:textSize="12sp"
         android:textStyle="bold"
         android:textColor="@color/white"
         android:backgroundTint="#FF0000"
@@ -93,10 +103,12 @@
         android:id="@+id/tvTotal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="85dp"
+        android:layout_marginEnd="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/btnRemoveProduct"
-        android:text="Total"/>
+        android:text="Total"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/tvTotalAmount"
@@ -104,6 +116,8 @@
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvTotal"
-        android:text="Php 0.00"/>
+        android:layout_marginEnd="8dp"
+        android:text="Php 0.00"
+        android:textStyle="bold"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

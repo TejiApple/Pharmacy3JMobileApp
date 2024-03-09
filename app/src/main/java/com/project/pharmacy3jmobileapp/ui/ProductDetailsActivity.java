@@ -80,7 +80,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
         tvItemGenericName = findViewById(R.id.tvItemGenericName);
         tvItemDesc = findViewById(R.id.tvItemDesc);
         tvItemCategory = findViewById(R.id.tvItemCategory);
-        tvItemQuantity = findViewById(R.id.tvItemQuantity);
+//        tvItemQuantity = findViewById(R.id.tvItemQuantity);
 
         ivProduct = findViewById(R.id.ivProductImg);
         Picasso.get().load(imageUrl).into(ivProduct);
