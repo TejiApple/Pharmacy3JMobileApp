@@ -2,6 +2,7 @@ package com.project.pharmacy3jmobileapp.ui;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -115,16 +116,12 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
                         itemsSubtotal.put(position, totalAmount);
 
                     }
-
-
-
-
-
-
                 } catch (JSONException e) {
                     Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
+            showProductBreakdown();
+
         } else {
             if (!productsOnBuyNow.isEmpty()) {
                 try {
@@ -140,6 +137,11 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
                             productsOnBuyNowObj.put("totalAmount", productsOnBuyNowObj.getString("price"));
                             initialAmount = Double.valueOf(productsOnBuyNowObj.getString("price"));
                         }
+
+//                        productsOnBuyNowObj.put("quantity", 1);
+                        String totalAmount = productsOnBuyNowObj.getString("totalAmount").replace(",","");
+                        int position = 0;
+                        itemsSubtotal.put(position, totalAmount);
                         Gson gson = new Gson();
                         ProductsModel productsInTheCart = gson.fromJson(String.valueOf(productsOnBuyNowObj), ProductsModel.class);
                         productsModelArrayList.add(productsInTheCart);
@@ -148,6 +150,8 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
                 } catch (JSONException e) {
                     Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
+                ConstraintLayout clTransactionDetails = findViewById(R.id.clTransactionDetails);
+                clTransactionDetails.setVisibility(View.GONE);
             }
         }
 //        productDetails = Objects.requireNonNull(getIntent().getExtras().get("productDetails")).toString();
@@ -185,7 +189,6 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
 //        tvTotalAmount.setText(formattedPrice);
 
         showProductsInTheCart();
-        showProductBreakdown();
         proceedToCheckout();
         cancelCheckout();
 //        showGcashDialog();
@@ -237,9 +240,9 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
                                             ProductsModel productsInTheCart = gson.fromJson(String.valueOf(productsOnBuyNowObj), ProductsModel.class);
                                             productsModelArrayList.add(productsInTheCart);
                                         }
-                                        if (!amountForBuyNow.isEmpty()){
-                                            initialAmount = Double.parseDouble(amountForBuyNow);
-                                        }
+//                                        if (!amountForBuyNow.isEmpty()){
+//                                            initialAmount = Double.parseDouble(amountForBuyNow);
+//                                        }
 
                                     } catch (JSONException e) {
                                         Toast.makeText(CheckoutActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();

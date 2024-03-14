@@ -77,6 +77,7 @@ public class CheckoutListAdapter extends BaseAdapter{
             int defaultQuantity = 1;
             CheckBox cbSelectItem = convertView.findViewById(R.id.cbSelectItem);
             Button removeItem = convertView.findViewById(R.id.btnRemoveProduct);
+            removeItem.setVisibility(View.GONE);
             tvBrandName = convertView.findViewById(R.id.tvProductNameInTheCart);
             tvPrice = convertView.findViewById(R.id.tvProductPriceInTheCart);
             tvQuantity = convertView.findViewById(R.id.tvProductQuantity);
@@ -85,34 +86,34 @@ public class CheckoutListAdapter extends BaseAdapter{
             btnAdd = convertView.findViewById(R.id.btnIncreaseProductQuantity);
             btnSubtract = convertView.findViewById(R.id.btnDecreaseProductQuantity);
 
-            removeItem.setOnClickListener(v -> {
-                AlertDialog.Builder alertDialog = new AlertDialog.Builder(context)
-                        .setTitle("Remove item")
-                        .setMessage("Are you sure you want to remove this item?")
-                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                productsModel.remove(position);
-                                Gson gson = new Gson();
-                                String newProductList = gson.toJson(productsModel);
-                                JSONArray newProductsArray;
-                                try {
-                                    newProductsArray = new JSONArray(newProductList);
-                                } catch (JSONException e) {
-                                    throw new RuntimeException(e);
-                                }
-
-//                productsArray.put(productsModel);
-
-                                SharedPreferences.Editor editor = sharedPreferences.edit();
-                                editor.putString("productDetails", newProductsArray.toString());
-                                editor.apply();
-                                notifyDataSetChanged();
-                            }
-                        })
-                        .setNegativeButton("No", null);
-                alertDialog.show();
-            });
+//            removeItem.setOnClickListener(v -> {
+//                AlertDialog.Builder alertDialog = new AlertDialog.Builder(context)
+//                        .setTitle("Remove item")
+//                        .setMessage("Are you sure you want to remove this item?")
+//                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+//                            @Override
+//                            public void onClick(DialogInterface dialog, int which) {
+//                                productsModel.remove(position);
+//                                Gson gson = new Gson();
+//                                String newProductList = gson.toJson(productsModel);
+//                                JSONArray newProductsArray;
+//                                try {
+//                                    newProductsArray = new JSONArray(newProductList);
+//                                } catch (JSONException e) {
+//                                    throw new RuntimeException(e);
+//                                }
+//
+////                productsArray.put(productsModel);
+//
+//                                SharedPreferences.Editor editor = sharedPreferences.edit();
+//                                editor.putString("productDetails", newProductsArray.toString());
+//                                editor.apply();
+//                                notifyDataSetChanged();
+//                            }
+//                        })
+//                        .setNegativeButton("No", null);
+//                alertDialog.show();
+//            });
 
             DecimalFormat df = new DecimalFormat("#,###.00");
 

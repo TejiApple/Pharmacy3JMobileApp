@@ -1,11 +1,13 @@
 package com.project.pharmacy3jmobileapp.model;
 
+import android.net.Uri;
+
 public class RegistrationModel {
     public RegistrationModel() {
     }
 
     public RegistrationModel(String completeName, String mobilePhone, String birthdate, String seniorCitizenId, String cityMunicipality,
-                             String barangay, String houseNo, String usernameReg, String passwordReg) {
+                             String barangay, String houseNo, String usernameReg, String passwordReg, String uri) {
         this.completeName = completeName;
         this.mobilePhone = mobilePhone;
         this.birthdate = birthdate;
@@ -14,6 +16,7 @@ public class RegistrationModel {
         this.houseNo = houseNo;
         this.usernameReg = usernameReg;
         this.passwordReg = passwordReg;
+        this.uri = uri;
     }
 
     private String completeName;
@@ -25,6 +28,8 @@ public class RegistrationModel {
     private String houseNo;
     private String usernameReg;
     private String passwordReg;
+
+    private String uri;
 
     public RegistrationModel(String updatedCompleteName, String updatedMobilePhone, String updatedBirthdate, String updatedSeniorCitizenId, String updatedHouseNo) {
         this.completeName = updatedCompleteName;
@@ -104,5 +109,13 @@ public class RegistrationModel {
 
     public void setPasswordReg(String passwordReg) {
         this.passwordReg = passwordReg;
+    }
+
+    public String getUri() {
+        return uri;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
     }
 }

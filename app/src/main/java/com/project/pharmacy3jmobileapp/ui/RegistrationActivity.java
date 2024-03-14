@@ -31,6 +31,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -277,14 +278,11 @@ public class RegistrationActivity extends AppCompatActivity {
             return;
         }
 
-        RegistrationModel registrationModel = new RegistrationModel(completeName, mobilePhone, birthdate, seniorCitizenId, cityMunicipality,
-                barangay, houseNo, username, password);
 
         firebaseAuth.createUserWithEmailAndPassword(usernameWithGmail, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()){
-                    dbRef.child("users").push().child(username).setValue(registrationModel);
 
                     if (imageData == null){
                         Toast.makeText(RegistrationActivity.this, "User created!", Toast.LENGTH_SHORT).show();
@@ -297,6 +295,14 @@ public class RegistrationActivity extends AppCompatActivity {
                         UploadTask uploadTask = storageReference.putBytes(imageData);
                         uploadTask.addOnCompleteListener(task1 -> {
                             if (task1.isSuccessful()){
+                                storageReference.getDownloadUrl().addOnSuccessListener(command -> {
+                                    String uri = command.toString();
+                                    RegistrationModel registrationModel = new RegistrationModel(completeName, mobilePhone, birthdate, seniorCitizenId, cityMunicipality,
+                                            barangay, houseNo, username, password, uri);
+
+                                    dbRef.child("users").push().child(username).setValue(registrationModel);
+
+                                });
                                 Toast.makeText(RegistrationActivity.this, "User created!", Toast.LENGTH_SHORT).show();
                                 progressBar.setVisibility(View.GONE);
                                 startActivity(new Intent(getApplicationContext(), MainActivity.class));

@@ -151,7 +151,7 @@
         app:layout_constraintTop_toBottomOf="@id/clMinMaxButtons"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/btnApplyFilter"
-        android:text="Clear"
+        android:text="Cancel"
         android:textColor="@color/white"
         android:backgroundTint="#566C7D"/>
 
