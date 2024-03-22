@@ -40,6 +40,7 @@ public class CheckoutListAdapter extends BaseAdapter{
     private SharedPreferences sharedPreferences;
     private String fromWhatScreen, fromWhatButton;
     double total;
+    int defaultQuantity = 1;
 
     public CheckoutListAdapter(Context context, ArrayList<ProductsModel> productsModel, OrderDetails orderDetails, SharedPreferences sharedPref, String fromWhatScreen, String fromWhatButton) {
         this.context = context;
@@ -74,7 +75,7 @@ public class CheckoutListAdapter extends BaseAdapter{
             }
             ImageView imageView = convertView.findViewById(R.id.ivProduct);
             TextView tvBrandName, tvPrice, tvQuantity, tvTotalAmount;
-            int defaultQuantity = 1;
+            AtomicInteger quantity = new AtomicInteger(defaultQuantity);
             CheckBox cbSelectItem = convertView.findViewById(R.id.cbSelectItem);
             Button removeItem = convertView.findViewById(R.id.btnRemoveProduct);
             removeItem.setVisibility(View.GONE);
@@ -150,7 +151,6 @@ public class CheckoutListAdapter extends BaseAdapter{
             Picasso.get().load(productsModel.get(position).getImageUrl()).into(imageView);
 
 
-            AtomicInteger quantity = new AtomicInteger(defaultQuantity);
             AtomicInteger selectedItem = new AtomicInteger();
 
             SharedPreferences.Editor editor = sharedPreferences.edit();

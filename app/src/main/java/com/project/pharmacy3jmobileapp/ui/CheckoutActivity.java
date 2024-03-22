@@ -73,7 +73,16 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_checkout);
+        registrationModelArrayList = new ArrayList<>();
 
+        //Setting up views
+        lvProductInTheCart = findViewById(R.id.lvProductsToCheckout);
+        lvCheckoutItemBreakdown = findViewById(R.id.lvCheckoutItem);
+        btnProceedToOrders = findViewById(R.id.btnProceedToOrders);
+        btnCancel = findViewById(R.id.btnCancelCheckout);
+        tvCustAddress = findViewById(R.id.tvCustAddress);
+//        rdBtnGcash = findViewById(R.id.rdBtnGcash);
+        tvCod = findViewById(R.id.tvCashOnDelivery);
         tvDiscountName = findViewById(R.id.tvDiscountName);
         tvDiscountPercent = findViewById(R.id.tvDiscountPercent);
         tvTotalAmount = findViewById(R.id.tvCartTotalAmount);
@@ -158,16 +167,7 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
 //        Gson gson = new Gson();
 //        ProductsModel productsInTheCart = gson.fromJson(productDetails, ProductsModel.class);
 
-        registrationModelArrayList = new ArrayList<>();
 
-        //Setting up views
-        lvProductInTheCart = findViewById(R.id.lvProductsToCheckout);
-        lvCheckoutItemBreakdown = findViewById(R.id.lvCheckoutItem);
-        btnProceedToOrders = findViewById(R.id.btnProceedToOrders);
-        btnCancel = findViewById(R.id.btnCancelCheckout);
-        tvCustAddress = findViewById(R.id.tvCustAddress);
-//        rdBtnGcash = findViewById(R.id.rdBtnGcash);
-        tvCod = findViewById(R.id.tvCashOnDelivery);
 
 
 //        if (initialAmount >= 200 && initialAmount < 1000){
@@ -235,7 +235,7 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
                                                 productsOnBuyNowObj.put("totalAmount", productsOnBuyNowObj.getString("price"));
                                             }
                                             amountForBuyNow = productsOnBuyNowObj.getString("totalAmount");
-                                            itemQuantity = productsOnBuyNowObj.getInt("quantity");
+//                                            itemQuantity = productsOnBuyNowObj.getInt("quantity");
                                             Gson gson = new Gson();
                                             ProductsModel productsInTheCart = gson.fromJson(String.valueOf(productsOnBuyNowObj), ProductsModel.class);
                                             productsModelArrayList.add(productsInTheCart);
@@ -269,7 +269,13 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
                             for (int i = 0; i < productsModelArrayList.size(); i++){
                                 itemName = productsModelArrayList.get(i).getBrandName();
                                 unitPrice = productsModelArrayList.get(i).getPrice();
-                                itemQuantity = productsModelArrayList.get(i).getQuantity();
+                                if (!fromBuyNow.isEmpty()){
+                                    if (itemQuantity == 0){
+                                        itemQuantity = 1;
+                                    }
+                                } else {
+                                    itemQuantity = productsModelArrayList.get(i).getQuantity();
+                                }
 //                                initialAmount = Double.valueOf(productsModelArrayList.get(i).getTotalAmount());
 //                                if (registrationModelArrayList.get(0).getSeniorCitizenId().length() > 0){
 //                                    discount = 0.8;
@@ -505,6 +511,7 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
                     for (String subtotal : itemsSubtotal.values()) {
                         finalTotalAmt += Double.parseDouble(subtotal.replace(",", ""));
                     }
+                    itemQuantity = quantity;
                 } else {
                     itemsSubtotal.remove(position);
                 }

@@ -306,18 +306,24 @@ public class HomepageActivity extends AppCompatActivity {
                         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                             Intent intent = new Intent(getApplicationContext(), ProductDetailsActivity.class);
                             String objectFromArray = "";
-                            try {
-                                Gson gson = new Gson();
-                                String productModelAsString = gson.toJson(productsModelArrayList);
-                                JSONArray jsonArray = new JSONArray(productModelAsString);
-                                objectFromArray = jsonArray.get(position).toString();
-                            } catch (JSONException e){
-                                Toast.makeText(HomepageActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+
+                            if (productsModelArrayList.get(position).getQuantity() == 0){
+                                Toast.makeText(HomepageActivity.this, "This item is sold out.", Toast.LENGTH_SHORT).show();
+                            } else {
+                                try {
+                                    Gson gson = new Gson();
+                                    String productModelAsString = gson.toJson(productsModelArrayList);
+                                    JSONArray jsonArray = new JSONArray(productModelAsString);
+                                    objectFromArray = jsonArray.get(position).toString();
+                                } catch (JSONException e){
+                                    Toast.makeText(HomepageActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+
+                                intent.putExtra("productModel", objectFromArray);
+                                intent.putExtra("category", "Health Care");
+                                startActivity(intent);
                             }
 
-                            intent.putExtra("productModel", objectFromArray);
-                            intent.putExtra("category", "Health Care");
-                            startActivity(intent);
                         }
                     });
                 }
