@@ -285,6 +285,10 @@ public class RegistrationActivity extends AppCompatActivity {
                 if (task.isSuccessful()){
 
                     if (imageData == null){
+                        RegistrationModel registrationModel = new RegistrationModel(completeName, mobilePhone, birthdate, seniorCitizenId, cityMunicipality,
+                                barangay, houseNo, username, password, "");
+
+                        dbRef.child("users").push().child(username).setValue(registrationModel);
                         Toast.makeText(RegistrationActivity.this, "User created!", Toast.LENGTH_SHORT).show();
                         progressBar.setVisibility(View.GONE);
                         startActivity(new Intent(getApplicationContext(), MainActivity.class));
