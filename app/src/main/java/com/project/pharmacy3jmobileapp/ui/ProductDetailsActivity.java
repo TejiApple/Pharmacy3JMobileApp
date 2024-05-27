@@ -1,10 +1,12 @@
 package com.project.pharmacy3jmobileapp.ui;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Html;
@@ -18,6 +20,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.project.pharmacy3jmobileapp.R;
@@ -33,10 +40,12 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class ProductDetailsActivity extends AppCompatActivity {
-    String brandName, description, price, productDetails, genericName, category, imageUrl, quantity;
+    String brandName, description, price, productDetails, genericName, category, imageUrl, quantity, productType, productClassification;
     TextView tvProductName, tvDescription, tvPrice, tvItemBrandName, tvItemPrice, tvItemGenericName, tvItemDesc, tvItemCategory, tvItemQuantity;
     ImageView ivProduct;
-    Button btnAddToCart, btnBuyNow;
+    Button btnAddToCart, btnBuyNow, btnVariation1, btnVariation2;
+
+    DatabaseReference dbRef;
 
     ArrayList<ProductsModel> productsModelArrayList;
 
@@ -47,8 +56,15 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
         btnAddToCart = findViewById(R.id.btnAddToCart);
         btnBuyNow = findViewById(R.id.btnBuyNow);
+        btnVariation1 = findViewById(R.id.btnVariation1);
+        btnVariation2 = findViewById(R.id.btnVariation2);
+
         productDetails = Objects.requireNonNull(getIntent().getExtras().get("productModel")).toString();
         category = getIntent().getExtras().getString("category");
+        productType = getIntent().getExtras().getString("productType");
+        productClassification = getIntent().getExtras().getString("classification");
+
+        dbRef = FirebaseDatabase.getInstance().getReference();
 
         try {
             JSONObject productDetailsObj = new JSONObject(productDetails);
@@ -69,6 +85,80 @@ public class ProductDetailsActivity extends AppCompatActivity {
         showProductDetails();
         addToCart();
         buyNow();
+
+        if (productClassification.equals("Neozep") || productClassification.equals("Biogesic")){
+            if (productClassification.equals("Neozep")){
+                btnVariation1.setText("Non-Drowsy");
+                btnVariation2.setText("Drops | 10 mL");
+            }
+            selectProductVariation();
+            btnBuyNow.setEnabled(false);
+            btnAddToCart.setEnabled(false);
+        } else {
+            btnVariation1.setVisibility(View.GONE);
+            btnVariation2.setVisibility(View.GONE);
+        }
+    }
+
+    private void selectProductVariation(){
+        btnVariation1.setOnClickListener(v -> {
+            btnVariation1.setBackgroundColor(Color.parseColor("#0581E8"));
+            btnVariation2.setBackgroundResource(R.drawable.rectangle_blue_border);
+
+            btnBuyNow.setEnabled(true);
+            btnAddToCart.setEnabled(true);
+
+            if (productClassification.equals("Biogesic")){
+                getProductDetails(productType, "Biogesic® For Kids | 100 mg | orange flavor", "Biogesic® For Kids | 100 mg | orange flavor");
+            } else {
+                getProductDetails(productType, "Neozep®", "Neozep®");
+            }
+        });
+
+        btnVariation2.setOnClickListener(v -> {
+            btnBuyNow.setEnabled(true);
+            btnAddToCart.setEnabled(true);
+
+            btnVariation2.setBackgroundColor(Color.parseColor("#0581E8"));
+            btnVariation1.setBackgroundResource(R.drawable.rectangle_blue_border);
+            if (productClassification.equals("Biogesic")){
+                getProductDetails(productType, "Biogesic® For Kids | 120 mg", "Biogesic® For Kids | 120 mg | strawberry flavor");
+            } else {
+                getProductDetails(productType, "Neozep® Drops | 10ml", "Neozep® Drops | 10ml");
+            }
+
+        });
+    }
+
+    private void getProductDetails(String productType, String productKeyName, String productBrandName){
+        productsModelArrayList = new ArrayList<>();
+        dbRef.child("product-list").child(productType).orderByChild("brandName").equalTo(productBrandName).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot productSnapshot : snapshot.getChildren()){
+                    ProductsModel productsModel = productSnapshot.getValue(ProductsModel.class);
+                    productsModelArrayList.add(productsModel);
+                }
+
+                brandName = productsModelArrayList.get(0).getBrandName();
+                description = productsModelArrayList.get(0).getDescription();
+                price = String.valueOf(productsModelArrayList.get(0).getPrice());
+                if (productsModelArrayList.get(0).getGenericName() != null){
+                    genericName = productsModelArrayList.get(0).getGenericName();
+                } else {
+                    genericName = "";
+                }
+                imageUrl = productsModelArrayList.get(0).getImageUrl();
+                quantity = String.valueOf(productsModelArrayList.get(0).getQuantity());
+
+                showProductDetails();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     @SuppressLint("SetTextI18n")
@@ -142,22 +232,33 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
             SharedPreferences.Editor editor = sharedPref.edit();
             try {
-                JSONObject productDetailsObj = new JSONObject(productDetails);
-                String productName = productDetailsObj.getString("brandName");
-//                for (int i = 0; i < finalProductsArray.length(); i++){
-//                    if (finalProductsArray.getJSONObject(i).getString("brandName").equals(productName)){
-//                        int selectedProductQuantity = finalProductsArray.getJSONObject(i).getInt("quantity") + 1;
-//                        productDetailsObj.put("quantity", selectedProductQuantity);
-//                        finalProductsArray.put(productDetailsObj);
-//                        finalProductsArray.remove(i);
-//                        break;
-//                    } else {
-//                        finalProductsArray.put(productDetailsObj);
-//                        break;
-//                    }
-//                }
-                JsonArray jsonArr = new Gson().fromJson(productsOnCart, JsonArray.class);
-                JsonArray jsonArr2 = new Gson().fromJson(suggestionItems, JsonArray.class);
+                if (productClassification.equals("Neozep") || productClassification.equals("Biogesic")){
+                    String productName = productsModelArrayList.get(0).getBrandName();
+                    JsonArray jsonArr = new Gson().fromJson(productsOnCart, JsonArray.class);
+                    JsonArray jsonArr2 = new Gson().fromJson(suggestionItems, JsonArray.class);
+                    if (hasValue(jsonArr, productName)){
+                        Toast.makeText(this, "This item is already in the cart!", Toast.LENGTH_SHORT).show();
+                    } else {
+                        if (!hasSuggestion(jsonArr2, category)){
+                            forSuggestionObj.put("suggestionCategory", category);
+                            forSuggestionObj.put("suggestionItemName", productName);
+                            finalForSuggestionArr.put(forSuggestionObj);
+                        }
+                        String gsonProductDetails = new Gson().toJson(productsModelArrayList);
+                        JSONArray productDetailsArr = new JSONArray(gsonProductDetails);
+                        JSONObject productDetailsObj = productDetailsArr.getJSONObject(0);
+                        finalProductsArray.put(productDetailsObj);
+                        editor.putString("productDetails", finalProductsArray.toString());
+                        editor.putString("suggestionItems", finalForSuggestionArr.toString());
+                        editor.apply();
+                        Toast.makeText(this, "Item added to cart successfully!", Toast.LENGTH_SHORT).show();
+                    }
+
+                } else {
+                    JSONObject productDetailsObj = new JSONObject(productDetails);
+                    String productName = productDetailsObj.getString("brandName");
+                    JsonArray jsonArr = new Gson().fromJson(productsOnCart, JsonArray.class);
+                    JsonArray jsonArr2 = new Gson().fromJson(suggestionItems, JsonArray.class);
                     if (hasValue(jsonArr, productName)){
                         Toast.makeText(this, "This item is already in the cart!", Toast.LENGTH_SHORT).show();
                     } else {
@@ -173,19 +274,8 @@ public class ProductDetailsActivity extends AppCompatActivity {
                         editor.apply();
                         Toast.makeText(this, "Item added to cart successfully!", Toast.LENGTH_SHORT).show();
                     }
-//                for (int i = 0; i < finalProductsArray.length(); i++){
-//                    if (finalProductsArray.getJSONObject(i).getString("brandName").equals(productName)){
-//                        Toast.makeText(this, "This item is already in the cart!", Toast.LENGTH_SHORT).show();
-//                        break;
-//                    } else {
-//                        int selectedProductQuantity = finalProductsArray.getJSONObject(i).getInt("quantity") + 1;
-//                        productDetailsObj.put("quantity", selectedProductQuantity);
-//                        finalProductsArray.put(productDetailsObj);
-//                        editor.putString("productDetails", finalProductsArray.toString());
-//                        editor.apply();
-//                        Toast.makeText(this, "Item added to cart successfully!", Toast.LENGTH_SHORT).show();
-//                    }
-//                }
+
+                }
 
                 Intent intent = new Intent(getApplicationContext(), HomepageActivity.class);
                 intent.putExtra("fromWhatTab", category);

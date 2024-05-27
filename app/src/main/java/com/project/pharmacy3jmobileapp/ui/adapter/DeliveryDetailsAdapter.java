@@ -7,8 +7,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.project.pharmacy3jmobileapp.R;
 import com.project.pharmacy3jmobileapp.model.OrdersModel;
@@ -48,13 +50,15 @@ public class DeliveryDetailsAdapter extends BaseAdapter {
                 LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 convertView = inflater.inflate(R.layout.listview_delivery, null, true);
             }
-            TextView tvOrderNumber, tvOrderDate, tvOrderItems, tvOrderItemPrice, tvOrderTotalAmount, tvOverallTotal, tvOrderStatus;
+            TextView tvOrderLabel, tvOrderDate, tvOrderItems, tvOrderItemPrice, tvOrderTotalAmount, tvOverallTotal, tvOrderStatus;
+            Button btnOrderReceived = convertView.findViewById(R.id.btnOrderReceived);
             tvOrderDate = convertView.findViewById(R.id.tvOrderDate);
             tvOrderItems = convertView.findViewById(R.id.tvOrderItems);
             tvOrderItemPrice = convertView.findViewById(R.id.tvOrderItemPrice);
 //            tvOrderTotalAmount = convertView.findViewById(R.id.tvOrderTotalAmount);
             tvOverallTotal = convertView.findViewById(R.id.tvOverallTotal);
             tvOrderStatus = convertView.findViewById(R.id.tvOrderStatus);
+            tvOrderLabel = convertView.findViewById(R.id.tvLabelTotal);
 
             String date = ordersModelArrayList.get(0).getDateOrder();
             tvOrderDate.setText(date);
@@ -86,6 +90,15 @@ public class DeliveryDetailsAdapter extends BaseAdapter {
                 tvOrderStatus.setText(orderStatus);
                 tvOrderStatus.setTextColor(Color.parseColor("#25ba0b"));
                 tvOrderStatus.setBackgroundResource(R.drawable.rectangle_green_border);
+                btnOrderReceived.setVisibility(View.VISIBLE);
+                btnOrderReceived.setOnClickListener(v -> {
+                    Toast.makeText(context, "Order received", Toast.LENGTH_SHORT).show();
+                    btnOrderReceived.setVisibility(View.GONE);
+                });
+            } else if (orderStatus.equals("Cancelled")){
+                tvOrderStatus.setText(orderStatus);
+                tvOrderStatus.setTextColor(Color.parseColor("#C50404"));
+                tvOrderStatus.setBackgroundResource(R.drawable.rectangle_red_border);
             } else {
                 tvOrderStatus.setText(orderStatus);
                 tvOrderStatus.setTextColor(Color.parseColor("#13548A"));

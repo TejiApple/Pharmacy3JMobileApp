@@ -39,6 +39,7 @@ import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -294,9 +295,20 @@ public class HomepageActivity extends AppCompatActivity {
             dbRef.child("product-list").child("health-care").addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    ArrayList<String> classificationList = new ArrayList<>();
+
                     for (DataSnapshot productSnapshot : snapshot.getChildren()){
                         ProductsModel productsModel = productSnapshot.getValue(ProductsModel.class);
-                        productsModelArrayList.add(productsModel);
+                        assert productsModel != null;
+                        if (productsModel.getClassification() != null){
+                            if (!classificationList.contains(productsModel.getClassification())){
+                                classificationList.add(productsModel.getClassification());
+                                productsModelArrayList.add(productsModel);
+                            }
+
+                        }
+
+
                     }
                     productsAdapter = new HomepageGridViewAdapter(HomepageActivity.this, productsModelArrayList);
                     gridView.setAdapter(productsAdapter);
@@ -320,6 +332,8 @@ public class HomepageActivity extends AppCompatActivity {
                                 }
 
                                 intent.putExtra("productModel", objectFromArray);
+                                intent.putExtra("productType", "health-care");
+                                intent.putExtra("classification", productsModelArrayList.get(position).getClassification());
                                 intent.putExtra("category", "Health Care");
                                 startActivity(intent);
                             }
