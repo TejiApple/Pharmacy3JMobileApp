@@ -1,5 +1,8 @@
 package com.project.pharmacy3jmobileapp.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class OrdersModel {
     public OrdersModel() {
     }
@@ -46,6 +49,15 @@ public class OrdersModel {
     private double unitPrice;
 
     private String seniorCitizenId;
+    private String key;
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
 
     public String getSeniorCitizenId() {
         return seniorCitizenId;
@@ -189,5 +201,29 @@ public class OrdersModel {
 
     public void setUnitPrice(double unitPrice) {
         this.unitPrice = unitPrice;
+    }
+
+    public Map<String, Object> toMap() {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("amount", amount);
+        result.put("contactNumber", contactNumber);
+        result.put("dateDelivered", dateDelivered);
+        result.put("dateOrder", dateOrder);
+        result.put("deliveryMode", deliveryMode);
+        result.put("discount", discount);
+        result.put("fullName", fullName);
+        result.put("itemName", itemName);
+        result.put("itemNumber", itemNumber);
+        result.put("paymentMode", paymentMode);
+        result.put("prescription", prescription);
+        result.put("productId", productId);
+        result.put("quantity", quantity);
+        result.put("seniorCitizenId", seniorCitizenId);
+        result.put("shipAddress", shipAddress);
+        result.put("status", status);
+        result.put("totalPay", totalPay);
+        result.put("unitPrice", unitPrice);
+
+        return result;
     }
 }

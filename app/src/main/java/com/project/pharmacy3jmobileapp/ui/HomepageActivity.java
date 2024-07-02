@@ -36,10 +36,10 @@ import com.project.pharmacy3jmobileapp.ui.adapter.HomepageGridViewAdapter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -100,33 +100,33 @@ public class HomepageActivity extends AppCompatActivity {
         if (getIntent().getExtras().get("fromWhatTab") != null){
             String fromWhatTab = getIntent().getExtras().getString("fromWhatTab");
             if (fromWhatTab.equals("Personal Care")){
-                displayPersonalCareProducts();
+                displayProducts("personal-care");
             } else if (fromWhatTab.equals("Beauty Care")) {
-                displayBeautyCareProducts();
+                displayProducts("beauty-care");
             } else if (fromWhatTab.equals("Baby & Kids")) {
-                displayBabyAndKidsProducts();
+                displayProducts("baby-and-kids");
             } else {
-                displayHealthCareProducts();
+                displayProducts("health-care");
             }
         } else {
-            displayHealthCareProducts();
+            displayProducts("health-care");
             category = "Health Care";
         }
 
         btnHealthCare.setOnClickListener(v -> {
-            displayHealthCareProducts();
+            displayProducts("health-care");
             category = "Health Care";
         });
         btnPersonalCare.setOnClickListener(v -> {
-            displayPersonalCareProducts();
+            displayProducts("personal-care");
             category = "Personal Care";
         });
         btnBeautyCare.setOnClickListener(v -> {
-            displayBeautyCareProducts();
+            displayProducts("beauty-care");
             category = "Beauty Care";
         });
         btnBabyAndKids.setOnClickListener(v -> {
-            displayBabyAndKidsProducts();
+            displayProducts("baby-and-kids");
             category = "Baby & Kids";
         });
         btnCart.setOnClickListener(v -> startActivity(new Intent(getApplicationContext(), CartActivity.class)));
@@ -155,7 +155,17 @@ public class HomepageActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
+                if (count == 0){
+                    if (category.equals("Health Care")) {
+                        displayProducts("health-care");
+                    } else if (category.equals("Personal Care")) {
+                        displayProducts("personal-care");
+                    } else if (category.equals("Beauty Care")) {
+                        displayProducts("beauty-care");
+                    } else if (category.equals("Baby & Kids")) {
+                        displayProducts("baby-and-kids");
+                    }
+                }
             }
 
             @Override
@@ -187,14 +197,18 @@ public class HomepageActivity extends AppCompatActivity {
 
                         if (productsModel.getBrandName().toLowerCase().contains(value.toLowerCase()) && productAmount >= minAmt && productAmount <= maxAmt){
                             productsSearchResult.add(productsModel);
-                        } else if (productsModel.getTags().toLowerCase().contains(value.toLowerCase()) && productAmount >= minAmt && productAmount <= maxAmt) {
-                            productsSearchResult.add(productsModel);
+                        } else if (productsModel.getTags() != null) {
+                            if (productsModel.getTags().toLowerCase().contains(value.toLowerCase()) && productAmount >= minAmt && productAmount <= maxAmt) {
+                                productsSearchResult.add(productsModel);
+                            }
                         }
                     } else {
                         if (productsModel.getBrandName().toLowerCase().contains(value.toLowerCase())){
                             productsSearchResult.add(productsModel);
-                        } else if (productsModel.getTags().toLowerCase().contains(value.toLowerCase())) {
-                            productsSearchResult.add(productsModel);
+                        } else if (productsModel.getTags() != null) {
+                            if (productsModel.getTags().toLowerCase().contains(value.toLowerCase())) {
+                                productsSearchResult.add(productsModel);
+                            }
                         }
                     }
                 } else if (!value1.isEmpty() && !value2.isEmpty()) {
@@ -257,14 +271,18 @@ public class HomepageActivity extends AppCompatActivity {
 
                             if (productsModel.getBrandName().toLowerCase().contains(value.toLowerCase()) && productAmount >= minAmt && productAmount <= maxAmt){
                                 productsSearchResult.add(productsModel);
-                            } else if (productsModel.getTags().toLowerCase().contains(value.toLowerCase()) && productAmount >= minAmt && productAmount <= maxAmt) {
-                                productsSearchResult.add(productsModel);
+                            } else if (productsModel.getTags() != null) {
+                                if (productsModel.getTags().toLowerCase().contains(value.toLowerCase()) && productAmount >= minAmt && productAmount <= maxAmt) {
+                                    productsSearchResult.add(productsModel);
+                                }
                             }
                         } else {
                             if (productsModel.getBrandName().toLowerCase().contains(value.toLowerCase())){
                                 productsSearchResult.add(productsModel);
-                            } else if (productsModel.getTags().toLowerCase().contains(value.toLowerCase())) {
-                                productsSearchResult.add(productsModel);
+                            } else if (productsModel.getTags() != null){
+                                if (productsModel.getTags().toLowerCase().contains(value.toLowerCase())) {
+                                    productsSearchResult.add(productsModel);
+                                }
                             }
                         }
                     } else if (!value1.isEmpty() && !value2.isEmpty()) {
@@ -287,15 +305,16 @@ public class HomepageActivity extends AppCompatActivity {
         }
     }
 
-    private void displayHealthCareProducts() {
+    private void displayProducts(String category) {
         dbRef = FirebaseDatabase.getInstance().getReference();
         productsModelArrayList = new ArrayList<>();
 
         try {
-            dbRef.child("product-list").child("health-care").addValueEventListener(new ValueEventListener() {
+            dbRef.child("product-list").child(category).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     ArrayList<String> classificationList = new ArrayList<>();
+                    ArrayList<ProductsModel> allProductsArrayList = new ArrayList<>();
 
                     for (DataSnapshot productSnapshot : snapshot.getChildren()){
                         ProductsModel productsModel = productSnapshot.getValue(ProductsModel.class);
@@ -305,7 +324,7 @@ public class HomepageActivity extends AppCompatActivity {
                                 classificationList.add(productsModel.getClassification());
                                 productsModelArrayList.add(productsModel);
                             }
-
+                            allProductsArrayList.add(productsModel);
                         }
 
 
@@ -313,32 +332,34 @@ public class HomepageActivity extends AppCompatActivity {
                     productsAdapter = new HomepageGridViewAdapter(HomepageActivity.this, productsModelArrayList);
                     gridView.setAdapter(productsAdapter);
 
-                    gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                            Intent intent = new Intent(getApplicationContext(), ProductDetailsActivity.class);
-                            String objectFromArray = "";
-
-                            if (productsModelArrayList.get(position).getQuantity() == 0){
-                                Toast.makeText(HomepageActivity.this, "This item is sold out.", Toast.LENGTH_SHORT).show();
-                            } else {
-                                try {
-                                    Gson gson = new Gson();
-                                    String productModelAsString = gson.toJson(productsModelArrayList);
-                                    JSONArray jsonArray = new JSONArray(productModelAsString);
-                                    objectFromArray = jsonArray.get(position).toString();
-                                } catch (JSONException e){
-                                    Toast.makeText(HomepageActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                    gridView.setOnItemClickListener((parent, view, position, id) -> {
+                        Intent intent = new Intent(getApplicationContext(), ProductDetailsActivity.class);
+                        String objectFromArray = "";
+                        JSONArray selectedProductArray = new JSONArray();
+                        if (productsModelArrayList.get(position).getQuantity() == 0){
+                            Toast.makeText(HomepageActivity.this, "This item is sold out.", Toast.LENGTH_SHORT).show();
+                        } else {
+                            try {
+                                Gson gson = new Gson();
+                                for (int i = 0; i < allProductsArrayList.size(); i++) {
+                                    String currentItemClassification = productsModelArrayList.get(position).getClassification();
+                                    if (currentItemClassification.equals(allProductsArrayList.get(i).getClassification())){
+                                        selectedProductArray.put(allProductsArrayList.get(i));
+                                    }
                                 }
-
-                                intent.putExtra("productModel", objectFromArray);
-                                intent.putExtra("productType", "health-care");
-                                intent.putExtra("classification", productsModelArrayList.get(position).getClassification());
-                                intent.putExtra("category", "Health Care");
-                                startActivity(intent);
+//                                JSONArray jsonArray = new JSONArray(productModelAsString);
+                                objectFromArray = gson.toJson(selectedProductArray);
+                            } catch (Exception e){
+                                Toast.makeText(HomepageActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                             }
 
+                            intent.putExtra("productModel", objectFromArray);
+                            intent.putExtra("productType", category);
+                            intent.putExtra("classification", productsModelArrayList.get(position).getClassification());
+                            intent.putExtra("category", "Health Care");
+                            startActivity(intent);
                         }
+
                     });
                 }
 
@@ -372,18 +393,24 @@ public class HomepageActivity extends AppCompatActivity {
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         Intent intent = new Intent(getApplicationContext(), ProductDetailsActivity.class);
                         String objectFromArray = "";
-                        try {
-                            Gson gson = new Gson();
-                            String productModelAsString = gson.toJson(productsModelArrayList);
-                            JSONArray jsonArray = new JSONArray(productModelAsString);
-                            objectFromArray = jsonArray.get(position).toString();
-                        } catch (JSONException e){
-                            Toast.makeText(HomepageActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
+                        if (productsModelArrayList.get(position).getQuantity() == 0){
+                            Toast.makeText(HomepageActivity.this, "This item is sold out.", Toast.LENGTH_SHORT).show();
+                        } else {
+                            try {
+                                Gson gson = new Gson();
+                                String productModelAsString = gson.toJson(productsModelArrayList);
+                                JSONArray jsonArray = new JSONArray(productModelAsString);
+                                objectFromArray = jsonArray.get(position).toString();
+                            } catch (JSONException e) {
+                                Toast.makeText(HomepageActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
 
-                        intent.putExtra("productModel", objectFromArray);
-                        intent.putExtra("category", "Personal Care");
-                        startActivity(intent);
+                            intent.putExtra("productModel", objectFromArray);
+                            intent.putExtra("category", "Personal Care");
+                            intent.putExtra("productType", "personal-care");
+                            intent.putExtra("classification", productsModelArrayList.get(position).getClassification());
+                            startActivity(intent);
+                        }
                     }
                 });
             }
@@ -414,18 +441,26 @@ public class HomepageActivity extends AppCompatActivity {
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         Intent intent = new Intent(getApplicationContext(), ProductDetailsActivity.class);
                         String objectFromArray = "";
-                        try {
-                            Gson gson = new Gson();
-                            String productModelAsString = gson.toJson(productsModelArrayList);
-                            JSONArray jsonArray = new JSONArray(productModelAsString);
-                            objectFromArray = jsonArray.get(position).toString();
-                        } catch (JSONException e){
-                            Toast.makeText(HomepageActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
 
-                        intent.putExtra("productModel", objectFromArray);
-                        intent.putExtra("category", "Beauty Care");
-                        startActivity(intent);
+                        if (productsModelArrayList.get(position).getQuantity() == 0){
+                            Toast.makeText(HomepageActivity.this, "This item is sold out.", Toast.LENGTH_SHORT).show();
+                        } else {
+                            try {
+                                Gson gson = new Gson();
+                                String productModelAsString = gson.toJson(productsModelArrayList);
+                                JSONArray jsonArray = new JSONArray(productModelAsString);
+                                objectFromArray = jsonArray.get(position).toString();
+                            } catch (JSONException e) {
+                                Toast.makeText(HomepageActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+
+
+                            intent.putExtra("productModel", objectFromArray);
+                            intent.putExtra("category", "Beauty Care");
+                            intent.putExtra("productType", "beauty-care");
+                            intent.putExtra("classification", productsModelArrayList.get(position).getClassification());
+                            startActivity(intent);
+                        }
                     }
                 });
             }
@@ -444,9 +479,19 @@ public class HomepageActivity extends AppCompatActivity {
         dbRef.child("product-list").child("baby-and-kids").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                ArrayList<String> classificationList = new ArrayList<>();
+
                 for (DataSnapshot productSnapshot : snapshot.getChildren()){
                     ProductsModel productsModel = productSnapshot.getValue(ProductsModel.class);
-                    productsModelArrayList.add(productsModel);
+                    assert productsModel != null;
+                    if (productsModel.getClassification() != null){
+                        if (!classificationList.contains(productsModel.getClassification())){
+                            classificationList.add(productsModel.getClassification());
+                            productsModelArrayList.add(productsModel);
+                        }
+
+                    }
+//                    productsModelArrayList.add(productsModel);
                 }
                 productsAdapter = new HomepageGridViewAdapter(HomepageActivity.this, productsModelArrayList);
                 gridView.setAdapter(productsAdapter);
@@ -456,18 +501,24 @@ public class HomepageActivity extends AppCompatActivity {
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         Intent intent = new Intent(getApplicationContext(), ProductDetailsActivity.class);
                         String objectFromArray = "";
-                        try {
-                            Gson gson = new Gson();
-                            String productModelAsString = gson.toJson(productsModelArrayList);
-                            JSONArray jsonArray = new JSONArray(productModelAsString);
-                            objectFromArray = jsonArray.get(position).toString();
-                        } catch (JSONException e){
-                            Toast.makeText(HomepageActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
+                        if (productsModelArrayList.get(position).getQuantity() == 0){
+                            Toast.makeText(HomepageActivity.this, "This item is sold out.", Toast.LENGTH_SHORT).show();
+                        } else {
+                            try {
+                                Gson gson = new Gson();
+                                String productModelAsString = gson.toJson(productsModelArrayList);
+                                JSONArray jsonArray = new JSONArray(productModelAsString);
+                                objectFromArray = jsonArray.get(position).toString();
+                            } catch (JSONException e) {
+                                Toast.makeText(HomepageActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
 
-                        intent.putExtra("productModel", objectFromArray);
-                        intent.putExtra("category", "Baby & Kids");
-                        startActivity(intent);
+                            intent.putExtra("productModel", objectFromArray);
+                            intent.putExtra("category", "Baby & Kids");
+                            intent.putExtra("productType", "baby-and-kids");
+                            intent.putExtra("classification", productsModelArrayList.get(position).getClassification());
+                            startActivity(intent);
+                        }
                     }
                 });
             }
@@ -669,13 +720,13 @@ public class HomepageActivity extends AppCompatActivity {
             filters.clear();
             filterDialog.dismiss();
             if (category.equals("Personal Care")){
-                displayPersonalCareProducts();
+                displayProducts("personal-care");
             } else if (category.equals("Health Care")) {
-                displayHealthCareProducts();
+                displayProducts("health-care");
             } else if (category.equals("Beauty Care")) {
-                displayBeautyCareProducts();
+                displayProducts("beauty-care");
             } else if (category.equals("Baby & Kids")) {
-                displayBabyAndKidsProducts();
+                displayProducts("baby-and-kids");
             }
         });
 

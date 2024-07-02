@@ -75,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
 //                            progressBar.setVisibility(View.GONE);
                             SharedPreferences sharedPref = getSharedPreferences("sp", MODE_PRIVATE);
                             SharedPreferences.Editor editor = sharedPref.edit();
+                            editor.remove("notified");
                             editor.putString("username", username);
                             editor.apply();
 

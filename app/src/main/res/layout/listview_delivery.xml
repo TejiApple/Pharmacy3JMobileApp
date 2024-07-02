@@ -64,7 +64,7 @@
             app:layout_constraintTop_toBottomOf="@id/tvOrderItems"
             app:layout_constraintStart_toStartOf="parent"
             android:textSize="16sp"
-            android:text="Php. 15.00"/>
+            android:text="P15.00"/>
 
 <!--        <TextView-->
 <!--            android:id="@+id/tvOrderTotalAmount"-->
@@ -99,7 +99,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Php 15.00"
+            android:text="P15.00"
             android:textColor="#670000"
             android:textSize="24sp"
             android:textStyle="bold"

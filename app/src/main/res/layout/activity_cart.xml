@@ -76,7 +76,7 @@
                 android:layout_height="wrap_content"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                android:text="Php 0.00"/>
+                android:text="P0.00"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

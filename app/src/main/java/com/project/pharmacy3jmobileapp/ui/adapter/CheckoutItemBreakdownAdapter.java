@@ -59,9 +59,9 @@ public class CheckoutItemBreakdownAdapter extends BaseAdapter {
         tvPrice = convertView.findViewById(R.id.tvPrice);
         tvQuantity = convertView.findViewById(R.id.tvQuantity);
         tvSubtotalAmount = convertView.findViewById(R.id.tvSubtotalAmount);
-        tvPrice.setText("Php " + df.format(productsModel.get(position).getPrice()));
+        tvPrice.setText("P" + df.format(productsModel.get(position).getPrice()));
         tvQuantity.setText("x " + productsModel.get(position).getQuantity());
-        tvSubtotalAmount.setText("Php " + productsModel.get(position).getTotalAmount());
+        tvSubtotalAmount.setText("P" + productsModel.get(position).getTotalAmount());
         return convertView;
     }
 }

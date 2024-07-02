@@ -32,18 +32,16 @@
         android:divider="@color/white"
         android:dividerHeight="8dp"
         android:layout_below="@id/cl"
-        android:layout_above="@id/btnBack"
-        app:layout_constraintBaseline_toTopOf="@id/btnBack"
         app:layout_constraintTop_toBottomOf="@id/cl" />
 
-    <Button
-        android:id="@+id/btnBack"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/lvOrderDelivery"
-        app:layout_constraintBaseline_toBottomOf="parent"
-        android:backgroundTint="#566C7D"
-        android:textColor="@color/white"
-        android:text="Back"
-        android:layout_alignParentBottom="true"/>
+<!--    <Button-->
+<!--        android:id="@+id/btnBack"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/lvOrderDelivery"-->
+<!--        app:layout_constraintBaseline_toBottomOf="parent"-->
+<!--        android:backgroundTint="#566C7D"-->
+<!--        android:textColor="@color/white"-->
+<!--        android:text="Back"-->
+<!--        android:layout_alignParentBottom="true"/>-->
 </RelativeLayout>

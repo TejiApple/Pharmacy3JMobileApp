@@ -1,6 +1,7 @@
 package com.project.pharmacy3jmobileapp.ui;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
@@ -9,14 +10,13 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.text.Html;
-import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.StyleSpan;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,6 +25,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.project.pharmacy3jmobileapp.R;
@@ -41,13 +43,17 @@ import java.util.Objects;
 
 public class ProductDetailsActivity extends AppCompatActivity {
     String brandName, description, price, productDetails, genericName, category, imageUrl, quantity, productType, productClassification;
-    TextView tvProductName, tvDescription, tvPrice, tvItemBrandName, tvItemPrice, tvItemGenericName, tvItemDesc, tvItemCategory, tvItemQuantity;
+    TextView tvProductName, tvVariationTitle, tvPrice, tvItemBrandName, tvItemPrice, tvItemGenericName, tvItemDesc, tvItemCategory, tvItemQuantity;
     ImageView ivProduct;
-    Button btnAddToCart, btnBuyNow, btnVariation1, btnVariation2;
+    Button btnAddToCart, btnBuyNow, btnVariation1, btnVariation2, btnVariation3, btnAddedVariation;
 
+    LinearLayout linearLayout;
     DatabaseReference dbRef;
 
     ArrayList<ProductsModel> productsModelArrayList;
+    String[] variationList;
+    JSONArray productDetailsArray;
+    JSONObject productDetailsObject;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,29 +62,43 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
         btnAddToCart = findViewById(R.id.btnAddToCart);
         btnBuyNow = findViewById(R.id.btnBuyNow);
+        tvVariationTitle = findViewById(R.id.tvVariationTitle);
         btnVariation1 = findViewById(R.id.btnVariation1);
         btnVariation2 = findViewById(R.id.btnVariation2);
+        btnVariation3 = findViewById(R.id.btnVariation3);
+        linearLayout = findViewById(R.id.llVariations);
 
         productDetails = Objects.requireNonNull(getIntent().getExtras().get("productModel")).toString();
         category = getIntent().getExtras().getString("category");
         productType = getIntent().getExtras().getString("productType");
-        productClassification = getIntent().getExtras().getString("classification");
+        String classification = getIntent().getExtras().getString("classification");
+        if (classification != null) {
+            productClassification = classification;
+        } else {
+            productClassification = "";
+        }
 
         dbRef = FirebaseDatabase.getInstance().getReference();
 
         try {
             JSONObject productDetailsObj = new JSONObject(productDetails);
-            brandName = productDetailsObj.getString("brandName");
-            description = productDetailsObj.getString("description");
-            price = productDetailsObj.getString("price");
-            if (productDetailsObj.has("genericName")){
-                genericName = productDetailsObj.getString("genericName");
+            productDetailsArray = productDetailsObj.getJSONArray("values");
+            JSONObject firstProductDetailsObj = productDetailsArray.getJSONObject(0);
+            brandName = firstProductDetailsObj.getString("brandName");
+            description = firstProductDetailsObj.getString("description");
+            price = firstProductDetailsObj.getString("price");
+            if (firstProductDetailsObj.has("genericName")){
+                genericName = firstProductDetailsObj.getString("genericName");
             } else {
                 genericName = "";
             }
-            imageUrl = productDetailsObj.getString("imageUrl");
-            quantity = productDetailsObj.getString("quantity");
-
+            imageUrl = firstProductDetailsObj.getString("imageUrl");
+            quantity = firstProductDetailsObj.getString("quantity");
+            productDetailsObject = firstProductDetailsObj;
+//            if (productDetailsObj.has("variation")){
+//                String variation = productDetailsObj.getString("variation");
+//                variationList = variation.split(", ");
+//            }
         } catch (JSONException e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
@@ -86,17 +106,66 @@ public class ProductDetailsActivity extends AppCompatActivity {
         addToCart();
         buyNow();
 
-        if (productClassification.equals("Neozep") || productClassification.equals("Biogesic")){
-            if (productClassification.equals("Neozep")){
-                btnVariation1.setText("Non-Drowsy");
-                btnVariation2.setText("Drops | 10 mL");
+        displayProductVariation();
+
+        if (productClassification.contains("Antibiotic")) {
+            tvVariationTitle.setVisibility(View.GONE);
+            btnVariation1.setVisibility(View.GONE);
+            btnVariation2.setVisibility(View.GONE);
+            btnVariation3.setVisibility(View.GONE);
+            btnBuyNow.setVisibility(View.GONE);
+            btnAddToCart.setVisibility(View.GONE);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Notice...");
+            builder.setMessage("This item needs prescription. Please go to the nearest branch and show the prescription needed.");
+            builder.setCancelable(false);
+            builder.setPositiveButton("OK", (dialog, which) -> {
+                dialog.dismiss();
+            });
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
+    }
+
+    private void displayProductVariation() {
+        if (productDetailsArray != null && productDetailsArray.length() > 1) {
+            tvVariationTitle.setVisibility(View.VISIBLE);
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            int dimens = (int) (8 * getResources().getDisplayMetrics().density);
+            lp.setMargins(0, dimens, 0, 0);
+            try {
+                for (int i = 0; i < productDetailsArray.length(); i++) {
+                    JSONObject productsObj = productDetailsArray.getJSONObject(i);
+                    if (i == 0) {
+                        btnVariation1.setVisibility(View.VISIBLE);
+                        btnVariation1.setText(productsObj.getString("brandName"));
+                    } else if (i == 1) {
+                        btnVariation2.setVisibility(View.VISIBLE);
+                        btnVariation2.setText(productsObj.getString("brandName"));
+                    } else if (i == 2) {
+                        btnVariation3.setVisibility(View.VISIBLE);
+                        btnVariation3.setText(productsObj.getString("brandName"));
+                    } else {
+                        btnAddedVariation = new Button(this);
+                        btnAddedVariation.setBackgroundResource(R.drawable.rectangle_blue_border);
+                        btnAddedVariation.setMaxLines(2);
+                        btnAddedVariation.setPadding(dimens, dimens ,dimens ,dimens);
+                        btnAddedVariation.setText(productsObj.getString("brandName"));
+                        linearLayout.addView(btnAddedVariation, lp);
+                    }
+                }
+            } catch (JSONException e) {
+                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
+
             selectProductVariation();
             btnBuyNow.setEnabled(false);
             btnAddToCart.setEnabled(false);
         } else {
+            tvVariationTitle.setVisibility(View.GONE);
             btnVariation1.setVisibility(View.GONE);
             btnVariation2.setVisibility(View.GONE);
+            btnVariation3.setVisibility(View.GONE);
         }
     }
 
@@ -104,35 +173,156 @@ public class ProductDetailsActivity extends AppCompatActivity {
         btnVariation1.setOnClickListener(v -> {
             btnVariation1.setBackgroundColor(Color.parseColor("#0581E8"));
             btnVariation2.setBackgroundResource(R.drawable.rectangle_blue_border);
+            btnVariation3.setBackgroundResource(R.drawable.rectangle_blue_border);
 
             btnBuyNow.setEnabled(true);
             btnAddToCart.setEnabled(true);
 
-            if (productClassification.equals("Biogesic")){
-                getProductDetails(productType, "Biogesic® For Kids | 100 mg | orange flavor", "Biogesic® For Kids | 100 mg | orange flavor");
-            } else {
-                getProductDetails(productType, "Neozep®", "Neozep®");
+            try {
+                productDetailsObject = productDetailsArray.getJSONObject(0);
+
+                brandName = productDetailsObject.getString("brandName");
+                description = productDetailsObject.getString("description");
+                price = productDetailsObject.getString("price");
+                if (productDetailsObject.has("genericName")){
+                    genericName = productDetailsObject.getString("genericName");
+                } else {
+                    genericName = "";
+                }
+                imageUrl = productDetailsObject.getString("imageUrl");
+                quantity = productDetailsObject.getString("quantity");
+            } catch (JSONException e) {
+                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
+
+            showProductDetails();
+//            if (productClassification.equals(classification)){
+//                getProductVariationDetails(productType, "Biogesic® For Kids | 100 mg | orange flavor", productClassification);
+//            } else if (productClassification.equals("Neozep")){
+//                getProductDetails(productType, "Neozep®", "Neozep®");
+//            } else if (productClassification.equals("EQ Pants Diaper")){
+//                getProductDetails(productType, "EQ Pants Diaper Jumbo Pack XXXL", "EQ Pants Diaper Jumbo Pack XXXL");
+//            } else if (productClassification.equals("Medicol")){
+//                getProductDetails(productType, "Medicol | 100 Mg", "Medicol | 100 Mg");
+//            } else if (productClassification.equals("Cloxacillin")){
+//                getProductDetails(productType, "Cloxacillin  | 100 Mg", "Cloxacillin  | 100 Mg");
+//            }
         });
 
         btnVariation2.setOnClickListener(v -> {
             btnBuyNow.setEnabled(true);
             btnAddToCart.setEnabled(true);
 
-            btnVariation2.setBackgroundColor(Color.parseColor("#0581E8"));
             btnVariation1.setBackgroundResource(R.drawable.rectangle_blue_border);
-            if (productClassification.equals("Biogesic")){
-                getProductDetails(productType, "Biogesic® For Kids | 120 mg", "Biogesic® For Kids | 120 mg | strawberry flavor");
-            } else {
-                getProductDetails(productType, "Neozep® Drops | 10ml", "Neozep® Drops | 10ml");
+            btnVariation2.setBackgroundColor(Color.parseColor("#0581E8"));
+            btnVariation3.setBackgroundResource(R.drawable.rectangle_blue_border);
+            try {
+                productDetailsObject = productDetailsArray.getJSONObject(1);
+
+                brandName = productDetailsObject.getString("brandName");
+                description = productDetailsObject.getString("description");
+                price = productDetailsObject.getString("price");
+                if (productDetailsObject.has("genericName")){
+                    genericName = productDetailsObject.getString("genericName");
+                } else {
+                    genericName = "";
+                }
+                imageUrl = productDetailsObject.getString("imageUrl");
+                quantity = productDetailsObject.getString("quantity");
+            } catch (JSONException e) {
+                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
 
+            showProductDetails();
+//            if (productClassification.equals("Biogesic")){
+//                getProductVariationDetails(productType, "Biogesic® For Kids | 120 mg", "Biogesic® For Kids | 120 mg | strawberry flavor");
+//            } else if (productClassification.equals("Neozep")){
+//                getProductDetails(productType, "Neozep® Drops | 10ml", "Neozep® Drops | 10ml");
+//            } else if (productClassification.equals("EQ Pants Diaper")){
+//                getProductDetails(productType, "EQ Pants Diaper XXL", "EQ Pants Diaper XXL");
+//            } else if (productClassification.equals("Medicol")){
+//                getProductDetails(productType, "Medicol  400mg", "Medicol  400mg");
+//            } else if (productClassification.equals("Cloxacillin")){
+//                getProductDetails(productType, "Cloxacillin  | 200 Mg", "Cloxacillin  | 200 Mg");
+//            }
+
         });
+
+        btnVariation3.setOnClickListener(v -> {
+            btnBuyNow.setEnabled(true);
+            btnAddToCart.setEnabled(true);
+
+            btnVariation1.setBackgroundResource(R.drawable.rectangle_blue_border);
+            btnVariation2.setBackgroundResource(R.drawable.rectangle_blue_border);
+            btnVariation3.setBackgroundColor(Color.parseColor("#0581E8"));
+
+            try {
+                productDetailsObject = productDetailsArray.getJSONObject(2);
+
+                brandName = productDetailsObject.getString("brandName");
+                description = productDetailsObject.getString("description");
+                price = productDetailsObject.getString("price");
+                if (productDetailsObject.has("genericName")){
+                    genericName = productDetailsObject.getString("genericName");
+                } else {
+                    genericName = "";
+                }
+                imageUrl = productDetailsObject.getString("imageUrl");
+                quantity = productDetailsObject.getString("quantity");
+            } catch (JSONException e) {
+                Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+
+            showProductDetails();
+//            if (productClassification.equals("Biogesic")){
+//                getProductVariationDetails(productType, "Biogesic® For Kids | 200 mg | orange flavor | 200 MG  | ORANGE FLAVOR", "Biogesic® For Kids | 200 mg | orange flavor | 200 MG  | ORANGE FLAVOR");
+//            } else if (productClassification.equals("Cloxacillin")){
+//                getProductDetails(productType, "Cloxacillin 500 Mg | 500 Mg", "Cloxacillin 500 Mg | 500 Mg");
+//            }
+
+        });
+
+        if (productDetailsArray.length() > 3) {
+            btnAddedVariation.setOnClickListener(v -> {
+                btnBuyNow.setEnabled(true);
+                btnAddToCart.setEnabled(true);
+
+                btnVariation1.setBackgroundResource(R.drawable.rectangle_blue_border);
+                btnVariation2.setBackgroundResource(R.drawable.rectangle_blue_border);
+                btnVariation3.setBackgroundResource(R.drawable.rectangle_blue_border);
+                btnAddedVariation.setBackgroundColor(Color.parseColor("#0581E8"));
+
+                try {
+                    productDetailsObject = productDetailsArray.getJSONObject(3);
+
+                    brandName = productDetailsObject.getString("brandName");
+                    description = productDetailsObject.getString("description");
+                    price = productDetailsObject.getString("price");
+                    if (productDetailsObject.has("genericName")){
+                        genericName = productDetailsObject.getString("genericName");
+                    } else {
+                        genericName = "";
+                    }
+                    imageUrl = productDetailsObject.getString("imageUrl");
+                    quantity = productDetailsObject.getString("quantity");
+                } catch (JSONException e) {
+                    Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+
+                showProductDetails();
+//            if (productClassification.equals("Biogesic")){
+//                getProductVariationDetails(productType, "Biogesic® For Kids | 200 mg | orange flavor | 200 MG  | ORANGE FLAVOR", "Biogesic® For Kids | 200 mg | orange flavor | 200 MG  | ORANGE FLAVOR");
+//            } else if (productClassification.equals("Cloxacillin")){
+//                getProductDetails(productType, "Cloxacillin 500 Mg | 500 Mg", "Cloxacillin 500 Mg | 500 Mg");
+//            }
+
+            });
+        }
     }
 
-    private void getProductDetails(String productType, String productKeyName, String productBrandName){
+    private void getProductVariationDetails(String productType, String productKeyName, String productBrandName){
         productsModelArrayList = new ArrayList<>();
-        dbRef.child("product-list").child(productType).orderByChild("brandName").equalTo(productBrandName).addListenerForSingleValueEvent(new ValueEventListener() {
+        dbRef.child("product-list").child(productType).orderByChild("classification").equalTo(productBrandName).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 for (DataSnapshot productSnapshot : snapshot.getChildren()){
@@ -173,11 +363,21 @@ public class ProductDetailsActivity extends AppCompatActivity {
 //        tvItemQuantity = findViewById(R.id.tvItemQuantity);
 
         ivProduct = findViewById(R.id.ivProductImg);
-        Picasso.get().load(imageUrl).into(ivProduct);
+        if (imageUrl.startsWith("uploads")){
+            String fileName = imageUrl.substring(8);
+            FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
+            StorageReference storageRef = firebaseStorage.getReference().child("uploads").child(fileName);
+            storageRef.getDownloadUrl().addOnSuccessListener(command -> {
+                String imageUri = command.toString();
+                Picasso.get().load(imageUri).into(ivProduct);
+            });
+        } else {
+            Picasso.get().load(imageUrl).into(ivProduct);
+        }
 
         tvProductName.setText(brandName);
         DecimalFormat df = new DecimalFormat("#,###.00");
-        String formattedPrice = "Php " + df.format(Integer.parseInt(price));
+        String formattedPrice = "P" + df.format(Integer.parseInt(price));
 //        tvItemQuantity.setText("Stock: " + quantity);
 
         tvItemBrandName.setText(brandName);
@@ -229,11 +429,33 @@ public class ProductDetailsActivity extends AppCompatActivity {
 //            intent.putExtra("productDetails", productDetails);
 //            startActivity(intent);
 
-
             SharedPreferences.Editor editor = sharedPref.edit();
             try {
-                if (productClassification.equals("Neozep") || productClassification.equals("Biogesic")){
-                    String productName = productsModelArrayList.get(0).getBrandName();
+//                if (productClassification.equals("Neozep") || productClassification.equals("Biogesic")){
+//                    String productName = productsModelArrayList.get(0).getBrandName();
+//                    JsonArray jsonArr = new Gson().fromJson(productsOnCart, JsonArray.class);
+//                    JsonArray jsonArr2 = new Gson().fromJson(suggestionItems, JsonArray.class);
+//                    if (hasValue(jsonArr, productName)){
+//                        Toast.makeText(this, "This item is already in the cart!", Toast.LENGTH_SHORT).show();
+//                    } else {
+//                        if (!hasSuggestion(jsonArr2, category)){
+//                            forSuggestionObj.put("suggestionCategory", category);
+//                            forSuggestionObj.put("suggestionItemName", productName);
+//                            finalForSuggestionArr.put(forSuggestionObj);
+//                        }
+//                        String gsonProductDetails = new Gson().toJson(productsModelArrayList);
+//                        JSONArray productDetailsArr = new JSONArray(gsonProductDetails);
+//                        JSONObject productDetailsObj = productDetailsArr.getJSONObject(0);
+//                        finalProductsArray.put(productDetailsObj);
+//                        editor.putString("productDetails", finalProductsArray.toString());
+//                        editor.putString("suggestionItems", finalForSuggestionArr.toString());
+//                        editor.apply();
+//                        Toast.makeText(this, "Item added to cart successfully!", Toast.LENGTH_SHORT).show();
+//                    }
+//
+//                } else {
+//                    JSONObject productDetailsObj = new JSONObject(productDetails);
+                    String productName = productDetailsObject.getString("brandName");
                     JsonArray jsonArr = new Gson().fromJson(productsOnCart, JsonArray.class);
                     JsonArray jsonArr2 = new Gson().fromJson(suggestionItems, JsonArray.class);
                     if (hasValue(jsonArr, productName)){
@@ -244,38 +466,15 @@ public class ProductDetailsActivity extends AppCompatActivity {
                             forSuggestionObj.put("suggestionItemName", productName);
                             finalForSuggestionArr.put(forSuggestionObj);
                         }
-                        String gsonProductDetails = new Gson().toJson(productsModelArrayList);
-                        JSONArray productDetailsArr = new JSONArray(gsonProductDetails);
-                        JSONObject productDetailsObj = productDetailsArr.getJSONObject(0);
-                        finalProductsArray.put(productDetailsObj);
+
+                        finalProductsArray.put(productDetailsObject);
                         editor.putString("productDetails", finalProductsArray.toString());
                         editor.putString("suggestionItems", finalForSuggestionArr.toString());
                         editor.apply();
                         Toast.makeText(this, "Item added to cart successfully!", Toast.LENGTH_SHORT).show();
                     }
 
-                } else {
-                    JSONObject productDetailsObj = new JSONObject(productDetails);
-                    String productName = productDetailsObj.getString("brandName");
-                    JsonArray jsonArr = new Gson().fromJson(productsOnCart, JsonArray.class);
-                    JsonArray jsonArr2 = new Gson().fromJson(suggestionItems, JsonArray.class);
-                    if (hasValue(jsonArr, productName)){
-                        Toast.makeText(this, "This item is already in the cart!", Toast.LENGTH_SHORT).show();
-                    } else {
-                        if (!hasSuggestion(jsonArr2, category)){
-                            forSuggestionObj.put("suggestionCategory", category);
-                            forSuggestionObj.put("suggestionItemName", productName);
-                            finalForSuggestionArr.put(forSuggestionObj);
-                        }
-
-                        finalProductsArray.put(productDetailsObj);
-                        editor.putString("productDetails", finalProductsArray.toString());
-                        editor.putString("suggestionItems", finalForSuggestionArr.toString());
-                        editor.apply();
-                        Toast.makeText(this, "Item added to cart successfully!", Toast.LENGTH_SHORT).show();
-                    }
-
-                }
+//                }
 
                 Intent intent = new Intent(getApplicationContext(), HomepageActivity.class);
                 intent.putExtra("fromWhatTab", category);
@@ -328,10 +527,10 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
             SharedPreferences.Editor editor = sharedPref.edit();
             try {
-                JSONObject productDetailsObj = new JSONObject(productDetails);
-                productsArray.put(productDetailsObj);
+//                JSONObject productDetailsObj = new JSONObject(productDetails);
+                productsArray.put(productDetailsObject);
 
-                String productName = productDetailsObj.getString("brandName");
+                String productName = productDetailsObject.getString("brandName");
                 JSONObject forSuggestionObj = new JSONObject();
                 forSuggestionObj.put("suggestionCategory", category);
                 forSuggestionObj.put("suggestionItemName", productName);
@@ -343,7 +542,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
                 editor.apply();
                 Intent intent = new Intent(getApplicationContext(), CheckoutActivity.class);
                 intent.putExtra("fromBuyNow", "fromBuyNow");
-                intent.putExtra("totalAmount", productDetailsObj.getString("price") + ".00");
+                intent.putExtra("totalAmount", productDetailsObject.getString("price") + ".00");
                 intent.putExtra("productModel", productDetails);
                 intent.putExtra("category", category);
                 startActivity(intent);

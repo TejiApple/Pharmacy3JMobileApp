@@ -8,6 +8,8 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.project.pharmacy3jmobileapp.R;
 import com.project.pharmacy3jmobileapp.model.ProductsModel;
 import com.squareup.picasso.Picasso;
@@ -52,9 +54,20 @@ public class HomepageGridViewAdapter extends BaseAdapter {
 
             String price = String.valueOf(productsModel.get(position).getPrice());
             tvBrandName.setText(productsModel.get(position).getBrandName());
-            tvPrice.setText("Php " + price);
+            tvPrice.setText("P" + price);
 //            imageView.setImageResource(R.drawable.icon_beauty_care);
-            Picasso.get().load(productsModel.get(position).getImageUrl()).into(imageView);
+            String imageUrl = productsModel.get(position).getImageUrl();
+            if (imageUrl.startsWith("uploads")){
+                String fileName = imageUrl.substring(8);
+                FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
+                StorageReference storageRef = firebaseStorage.getReference().child("uploads").child(fileName);
+                storageRef.getDownloadUrl().addOnSuccessListener(command -> {
+                    String imageUri = command.toString();
+                    Picasso.get().load(imageUri).into(imageView);
+                });
+            } else {
+                Picasso.get().load(productsModel.get(position).getImageUrl()).into(imageView);
+            }
         } catch (Exception e){
             e.getMessage();
         }

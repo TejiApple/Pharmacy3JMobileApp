@@ -12,20 +12,32 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 import com.project.pharmacy3jmobileapp.R;
 import com.project.pharmacy3jmobileapp.model.OrdersModel;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DeliveryDetailsAdapter extends BaseAdapter {
     Context context;
     private ArrayList<OrdersModel> ordersModelArrayList;
     ArrayList<String> orderArray = new ArrayList<>();
-
-    public DeliveryDetailsAdapter(Context context, ArrayList<OrdersModel> ordersModelArrayList) {
+    OrdersModel orders;
+    DatabaseReference dbRef;
+    String customerName;
+    public DeliveryDetailsAdapter(Context context, ArrayList<OrdersModel> ordersModelArrayList, DatabaseReference dbRef, String customerName) {
         this.context = context;
         this.ordersModelArrayList = ordersModelArrayList;
+        this.dbRef = dbRef;
+        this.customerName = customerName;
     }
 
     @Override
@@ -75,14 +87,15 @@ public class DeliveryDetailsAdapter extends BaseAdapter {
             tvOrderItems.setText(ordersModelArrayList.get(position).getQuantity() + " - " + ordersModelArrayList.get(position).getItemName());
 
             DecimalFormat df = new DecimalFormat("#,###.00");
-            String formattedPrice = "Php " + df.format(ordersModelArrayList.get(position).getUnitPrice());
+            String formattedPrice = "P" + df.format(ordersModelArrayList.get(position).getUnitPrice());
             tvOrderItemPrice.setText(formattedPrice + " each.");
 
-            String formattedTotalPay = "Php " + df.format(ordersModelArrayList.get(position).getTotalPay());
+            String formattedTotalPay = "P" + df.format(ordersModelArrayList.get(position).getTotalPay());
             tvOverallTotal.setText(formattedTotalPay);
 
             String orderStatus = ordersModelArrayList.get(position).getStatus();
             if (orderStatus.equals("Pending")){
+                btnOrderReceived.setVisibility(View.GONE);
                 tvOrderStatus.setText(orderStatus);
                 tvOrderStatus.setTextColor(Color.parseColor("#b8ab00"));
                 tvOrderStatus.setBackgroundResource(R.drawable.rectangle_yellow_border);
@@ -94,8 +107,43 @@ public class DeliveryDetailsAdapter extends BaseAdapter {
                 btnOrderReceived.setOnClickListener(v -> {
                     Toast.makeText(context, "Order received", Toast.LENGTH_SHORT).show();
                     btnOrderReceived.setVisibility(View.GONE);
+                    orders = new OrdersModel(
+                            ordersModelArrayList.get(position).getAmount(),
+                            ordersModelArrayList.get(position).getContactNumber(),
+                            ordersModelArrayList.get(position).getDateDelivered(),
+                            ordersModelArrayList.get(position).getDateOrder(),
+                            ordersModelArrayList.get(position).getDiscount(),
+                            ordersModelArrayList.get(position).getFullName(),
+                            ordersModelArrayList.get(position).getItemName(),
+                            ordersModelArrayList.get(position).getItemNumber(),
+                            ordersModelArrayList.get(position).getDeliveryMode(),
+                            ordersModelArrayList.get(position).getPaymentMode(),
+                            ordersModelArrayList.get(position).getPrescription(),
+                            ordersModelArrayList.get(position).getProductId(),
+                            ordersModelArrayList.get(position).getQuantity(),
+                            ordersModelArrayList.get(position).getShipAddress(),
+                            "Order Received",
+                            ordersModelArrayList.get(position).getTotalPay(),
+                            ordersModelArrayList.get(position).getUnitPrice(),
+                            ordersModelArrayList.get(position).getSeniorCitizenId()
+                    );
+                    Map<String, Object> orderNewValues = orders.toMap();
+                    Map<String, Object> orderUpdates = new HashMap<>();
+                    String key = ordersModelArrayList.get(position).getKey();
+                    orderUpdates.put(key, orderNewValues);
+                    dbRef.child("orders").updateChildren(orderUpdates);
+
+                    tvOrderStatus.setText("Order Received");
+                    tvOrderStatus.setTextColor(Color.parseColor("#25ba0b"));
+                    tvOrderStatus.setBackgroundResource(R.drawable.rectangle_green_border);
                 });
-            } else if (orderStatus.equals("Cancelled")){
+            } else if (orderStatus.contains("Order Received")){
+                btnOrderReceived.setVisibility(View.GONE);
+                tvOrderStatus.setText(orderStatus);
+                tvOrderStatus.setTextColor(Color.parseColor("#25ba0b"));
+                tvOrderStatus.setBackgroundResource(R.drawable.rectangle_green_border);
+            } else if (orderStatus.contains("Cancel")){
+                btnOrderReceived.setVisibility(View.GONE);
                 tvOrderStatus.setText(orderStatus);
                 tvOrderStatus.setTextColor(Color.parseColor("#C50404"));
                 tvOrderStatus.setBackgroundResource(R.drawable.rectangle_red_border);

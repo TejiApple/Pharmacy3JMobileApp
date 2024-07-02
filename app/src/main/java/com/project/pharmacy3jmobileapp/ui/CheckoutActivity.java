@@ -409,19 +409,19 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
                                             tvDiscountPercent.setVisibility(View.VISIBLE);
                                             tvDiscountPercent.setText("Senior Citizen 20% + 5%");
                                             initialAmount = finalTotalAmt * 0.75;
-                                            tvTotalAmount.setText("Php " + df.format(initialAmount));
+                                            tvTotalAmount.setText("P" + df.format(initialAmount));
                                         } else if (finalTotalAmt > 1000) {
                                             tvDiscountName.setVisibility(View.VISIBLE);
                                             tvDiscountPercent.setVisibility(View.VISIBLE);
                                             tvDiscountPercent.setText("Senior Citizen 20% + 10%");
                                             initialAmount = finalTotalAmt * 0.70;
-                                            tvTotalAmount.setText("Php " + df.format(initialAmount));
+                                            tvTotalAmount.setText("P" + df.format(initialAmount));
                                         } else {
                                             tvDiscountName.setVisibility(View.GONE);
                                             tvDiscountPercent.setVisibility(View.GONE);
                                             tvDiscountPercent.setText("0%");
                                             initialAmount = finalTotalAmt * 0.80;
-                                            tvTotalAmount.setText("Php " + df.format(initialAmount));
+                                            tvTotalAmount.setText("P" + df.format(initialAmount));
                                         }
                                     } else {
                                         if (finalTotalAmt >= 200 && finalTotalAmt < 1000){
@@ -429,19 +429,19 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
                                             tvDiscountPercent.setVisibility(View.VISIBLE);
                                             tvDiscountPercent.setText("5%");
                                             initialAmount = finalTotalAmt * 0.95;
-                                            tvTotalAmount.setText("Php " + df.format(initialAmount));
+                                            tvTotalAmount.setText("P" + df.format(initialAmount));
                                         } else if (finalTotalAmt > 1000) {
                                             tvDiscountName.setVisibility(View.VISIBLE);
                                             tvDiscountPercent.setVisibility(View.VISIBLE);
                                             tvDiscountPercent.setText("10%");
                                             initialAmount = finalTotalAmt * 0.9;
-                                            tvTotalAmount.setText("Php " + df.format(initialAmount));
+                                            tvTotalAmount.setText("P" + df.format(initialAmount));
                                         } else {
                                             tvDiscountName.setVisibility(View.GONE);
                                             tvDiscountPercent.setVisibility(View.GONE);
                                             tvDiscountPercent.setText("0%");
                                             initialAmount = finalTotalAmt;
-                                            tvTotalAmount.setText("Php " + df.format(initialAmount));
+                                            tvTotalAmount.setText("P" + df.format(initialAmount));
                                         }
                                     }
                                 } catch (Exception e){
@@ -522,7 +522,7 @@ public class CheckoutActivity extends AppCompatActivity implements OrderDetails 
                     finalTotalAmt = finalTotalAmt * 0.9;
                 }
 
-                tvTotalAmount.setText("Php " + df.format(finalTotalAmt) + "0");
+                tvTotalAmount.setText("P" + df.format(finalTotalAmt) + "0");
                 amountToBeDiscounted = finalTotalAmt;
             }
 

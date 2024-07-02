@@ -18,6 +18,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.project.pharmacy3jmobileapp.R;
@@ -120,7 +122,7 @@ public class CartProductDetailsListAdapter extends BaseAdapter {
 
             String price = String.valueOf(productsModel.get(position).getPrice());
             tvBrandName.setText(productsModel.get(position).getBrandName());
-            String formattedPrice = "Php " + df.format(Integer.parseInt(price));
+            String formattedPrice = "P" + df.format(Integer.parseInt(price));
             tvPrice.setText(formattedPrice);
             if (fromWhatScreen.equals("CartActivity")){
                 cbSelectItem.setVisibility(View.VISIBLE);
@@ -137,7 +139,7 @@ public class CartProductDetailsListAdapter extends BaseAdapter {
                     btnAdd.setVisibility(View.GONE);
                     btnSubtract.setVisibility(View.GONE);
                     String totalAmountFromModel = productsModel.get(position).getTotalAmount();
-                    String formattedTotalAmount = "Php " + df.format(Double.parseDouble(totalAmountFromModel.replace(",", "")));
+                    String formattedTotalAmount = "P" + df.format(Double.parseDouble(totalAmountFromModel.replace(",", "")));
                     tvTotalAmount.setText(formattedTotalAmount);
                     tvQuantity.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
                     tvQuantity.setText(productsModel.get(position).getQuantity() + " pc(s).");
@@ -148,7 +150,18 @@ public class CartProductDetailsListAdapter extends BaseAdapter {
 
 
             }
-            Picasso.get().load(productsModel.get(position).getImageUrl()).into(imageView);
+            String imageUrl = productsModel.get(position).getImageUrl();
+            if (imageUrl.startsWith("uploads")){
+                String fileName = imageUrl.substring(8);
+                FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
+                StorageReference storageRef = firebaseStorage.getReference().child("uploads").child(fileName);
+                storageRef.getDownloadUrl().addOnSuccessListener(command -> {
+                    String imageUri = command.toString();
+                    Picasso.get().load(imageUri).into(imageView);
+                });
+            } else {
+                Picasso.get().load(productsModel.get(position).getImageUrl()).into(imageView);
+            }
 
 
             AtomicInteger quantity = new AtomicInteger(defaultQuantity);
@@ -166,7 +179,7 @@ public class CartProductDetailsListAdapter extends BaseAdapter {
 
                 total = Double.parseDouble(price) * Double.parseDouble(String.valueOf(quantity));
                 String totalAmt = df.format(total);
-                tvTotalAmount.setText("Php " + totalAmt);
+                tvTotalAmount.setText("P" + totalAmt);
                 if (fromWhatScreen.equals("CartActivity")){
                     if (cbSelectItem.isChecked()){
                         selectedItem.set(1);
@@ -257,7 +270,7 @@ public class CartProductDetailsListAdapter extends BaseAdapter {
 
                     double totalAmt = total - Double.parseDouble(price);
                     total = totalAmt;
-                    tvTotalAmount.setText("Php " + df.format(totalAmt));
+                    tvTotalAmount.setText("P" + df.format(totalAmt));
                     if (fromWhatScreen.equals("CartActivity")){
                         if (cbSelectItem.isChecked()){
                             selectedItem.set(1);

@@ -73,7 +73,7 @@
                 android:id="@+id/tvItemPrice"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Php 0.00"
+                android:text="P0.00"
                 android:textColor="#C50404"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -87,32 +87,50 @@
                 android:textSize="16sp"/>
 
             <TextView
+                android:id="@+id/tvVariationTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:text="Available variations:"
+                android:visibility="gone"
                 android:textSize="16sp"/>
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:id="@+id/llVariations"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="vertical">
                 <Button
                     android:id="@+id/btnVariation1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:padding="8dp"
                     android:background="@drawable/rectangle_blue_border"
-                    android:text="100 mg"/>
+                    android:text="100 mg"
+                    android:maxLines="2"
+                    android:visibility="gone"/>
 
                 <Button
                     android:id="@+id/btnVariation2"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="8dp"
                     android:padding="8dp"
                     android:background="@drawable/rectangle_blue_border"
-                    android:text="120 mg"/>
+                    android:text="120 mg"
+                    android:maxLines="2"
+                    android:visibility="gone"/>
+
+                <Button
+                    android:id="@+id/btnVariation3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:padding="8dp"
+                    android:background="@drawable/rectangle_blue_border"
+                    android:text="200 mg"
+                    android:maxLines="2"
+                    android:visibility="gone"/>
             </LinearLayout>
             <TextView
                 android:id="@+id/textView"

@@ -273,7 +273,7 @@ public class CartActivity extends AppCompatActivity implements OrderDetails {
             }
             DecimalFormat df = new DecimalFormat("#,##0.00");
 
-            tvTotalAmount.setText("Php " + df.format(finalTotalAmt));
+            tvTotalAmount.setText("P" + df.format(finalTotalAmt));
             initialAmount = Double.parseDouble(String.valueOf(finalTotalAmt));
             itemQuantity = quantity;
             if (selectedItem == 1){
